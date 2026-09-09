@@ -1,0 +1,13 @@
+embedding:
+  provider: local
+  model: all-MiniLM-L6-v2
+  normalize: true
+retrieval:
+  top_k: 5
+  similarity: cosine
+evaluation:
+  benchmark: data/benchmarks/s2_questions.yaml
+  recall_at:
+  - 1
+  - 3
+  - 5
