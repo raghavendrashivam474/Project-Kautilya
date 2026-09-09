@@ -1,0 +1,14 @@
+﻿# S4 Hybrid Fusion Configuration
+# ------------------------------------------
+# Baseline experimental parameters for evidence fusion.
+# These are HYPOTHESES to be tested, not truths.
+
+fusion:
+  semantic_weight: 1.0
+  structural_weight: 1.0
+  agreement_bonus: 0.5
+  normalization: rank_based
+
+retrieval:
+  top_k: 5
+  max_hops: 2

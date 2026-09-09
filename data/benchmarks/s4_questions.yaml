@@ -1,0 +1,279 @@
+﻿# S4 Evidence Fusion Benchmark
+# ------------------------------------------
+# Categories:
+#   A. semantic_friendly  — lexical/topical questions where RAG should shine
+#   B. structural_friendly — relation-typed questions where KAG should shine
+#   C. agreement          — both retrievers should return the same chunk
+#   D. complementary      — each retriever returns different-but-useful evidence
+#   E. ambiguous_hub      — hub entities where KAG produces structural ties
+#   F. hybrid_required    — questions where only fusion is expected to succeed
+
+questions:
+  # ── Category A: Semantic-friendly ──────────────────────────
+  - id: s4_q01
+    question: "What does Vector Labs do?"
+    category: semantic_friendly
+    complexity: 0-hop
+    expected_evidence:
+      - document_id: doc_002
+        chunk_id: chunk_002_001
+
+  - id: s4_q02
+    question: "Describe the founding of Nova Systems."
+    category: semantic_friendly
+    complexity: 0-hop
+    expected_evidence:
+      - document_id: doc_001
+        chunk_id: chunk_001_001
+
+  - id: s4_q03
+    question: "What is HelixDB used for?"
+    category: semantic_friendly
+    complexity: 0-hop
+    expected_evidence:
+      - document_id: doc_003
+        chunk_id: chunk_003_001
+
+  - id: s4_q04
+    question: "Tell me about Orion Analytics."
+    category: semantic_friendly
+    complexity: 0-hop
+    expected_evidence:
+      - document_id: doc_004
+        chunk_id: chunk_004_001
+
+  - id: s4_q05
+    question: "What is Meridian Cloud?"
+    category: semantic_friendly
+    complexity: 0-hop
+    expected_evidence:
+      - document_id: doc_011
+        chunk_id: chunk_011_001
+
+  # ── Category B: Structural-friendly ────────────────────────
+  - id: s4_q06
+    question: "Who acquired Vector Labs?"
+    category: structural_friendly
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_005
+        chunk_id: chunk_005_001
+
+  - id: s4_q07
+    question: "Who founded Nova Systems?"
+    category: structural_friendly
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_001
+        chunk_id: chunk_001_001
+      - document_id: doc_012
+        chunk_id: chunk_012_001
+
+  - id: s4_q08
+    question: "Who co-founded Vector Labs?"
+    category: structural_friendly
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_002
+        chunk_id: chunk_002_001
+
+  - id: s4_q09
+    question: "Who partnered with Vector Labs?"
+    category: structural_friendly
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_011
+        chunk_id: chunk_011_001
+
+  - id: s4_q10
+    question: "Who leads Vector Labs?"
+    category: structural_friendly
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_006
+        chunk_id: chunk_006_001
+
+  # ── Category C: Agreement ──────────────────────────────────
+  - id: s4_q11
+    question: "Who acquired Vector Labs in 2024?"
+    category: agreement
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_005
+        chunk_id: chunk_005_001
+
+  - id: s4_q12
+    question: "Where is Vector Labs headquartered?"
+    category: agreement
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_002
+        chunk_id: chunk_002_001
+
+  - id: s4_q13
+    question: "Who founded Nova Systems in Bengaluru?"
+    category: agreement
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_001
+        chunk_id: chunk_001_001
+      - document_id: doc_012
+        chunk_id: chunk_012_001
+
+  # ── Category D: Complementary ──────────────────────────────
+  - id: s4_q14
+    question: "What technology did Vector Labs develop?"
+    category: complementary
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_002
+        chunk_id: chunk_002_001
+      - document_id: doc_003
+        chunk_id: chunk_003_001
+      - document_id: doc_005
+        chunk_id: chunk_005_001
+
+  - id: s4_q15
+    question: "What products are associated with Nova Systems after 2024?"
+    category: complementary
+    complexity: 2-hop
+    expected_evidence:
+      - document_id: doc_005
+        chunk_id: chunk_005_001
+      - document_id: doc_003
+        chunk_id: chunk_003_001
+
+  - id: s4_q16
+    question: "What does Meridian Cloud do with Vector Labs?"
+    category: complementary
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_011
+        chunk_id: chunk_011_001
+
+  # ── Category E: Ambiguous / hub ────────────────────────────
+  - id: s4_q17
+    question: "What is Vector Labs connected to?"
+    category: ambiguous_hub
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_002
+        chunk_id: chunk_002_001
+      - document_id: doc_005
+        chunk_id: chunk_005_001
+      - document_id: doc_011
+        chunk_id: chunk_011_001
+
+  - id: s4_q18
+    question: "Which companies does Nova Systems relate to?"
+    category: ambiguous_hub
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_001
+        chunk_id: chunk_001_001
+      - document_id: doc_005
+        chunk_id: chunk_005_001
+
+  - id: s4_q19
+    question: "What roles does Mira Sharma hold?"
+    category: ambiguous_hub
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_006
+        chunk_id: chunk_006_001
+      - document_id: doc_002
+        chunk_id: chunk_002_001
+
+  - id: s4_q20
+    question: "What is Anand Iyer known for?"
+    category: ambiguous_hub
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_010
+        chunk_id: chunk_010_001
+
+  # ── Category F: Hybrid-required (multi-hop) ────────────────
+  - id: s4_q21
+    question: "Who acquired the company that developed HelixDB?"
+    category: hybrid_required
+    complexity: 2-hop
+    expected_evidence:
+      - document_id: doc_005
+        chunk_id: chunk_005_001
+
+  - id: s4_q22
+    question: "Who founded the company that acquired Vector Labs?"
+    category: hybrid_required
+    complexity: 2-hop
+    expected_evidence:
+      - document_id: doc_012
+        chunk_id: chunk_012_001
+      - document_id: doc_001
+        chunk_id: chunk_001_001
+
+  - id: s4_q23
+    question: "Which cloud provider works with the company that built HelixDB?"
+    category: hybrid_required
+    complexity: 2-hop
+    expected_evidence:
+      - document_id: doc_011
+        chunk_id: chunk_011_001
+
+  - id: s4_q24
+    question: "Who co-founded the company that Nova Systems acquired?"
+    category: hybrid_required
+    complexity: 2-hop
+    expected_evidence:
+      - document_id: doc_002
+        chunk_id: chunk_002_001
+      - document_id: doc_006
+        chunk_id: chunk_006_001
+
+  - id: s4_q25
+    question: "What technology came under Nova Systems after the 2024 acquisition?"
+    category: hybrid_required
+    complexity: 2-hop
+    expected_evidence:
+      - document_id: doc_005
+        chunk_id: chunk_005_001
+
+  # ── More complementary + edge cases ────────────────────────
+  - id: s4_q26
+    question: "What did Vector Labs build and who bought them?"
+    category: complementary
+    complexity: multi-hop
+    expected_evidence:
+      - document_id: doc_005
+        chunk_id: chunk_005_001
+
+  - id: s4_q27
+    question: "Which entrepreneur founded Nova Systems?"
+    category: structural_friendly
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_012
+        chunk_id: chunk_012_001
+
+  - id: s4_q28
+    question: "What is Kaveri?"
+    category: semantic_friendly
+    complexity: 0-hop
+    expected_evidence:
+      - document_id: doc_009
+        chunk_id: chunk_009_001
+
+  - id: s4_q29
+    question: "Who works for Vector Labs as a systems engineer?"
+    category: complementary
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_010
+        chunk_id: chunk_010_001
+
+  - id: s4_q30
+    question: "What did Arjun Mehta do?"
+    category: semantic_friendly
+    complexity: 0-hop
+    expected_evidence:
+      - document_id: doc_007
+        chunk_id: chunk_007_001
