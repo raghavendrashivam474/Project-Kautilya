@@ -1,0 +1,3 @@
+﻿HelixDB is a hybrid vector and graph database developed by Vector Labs.
+It supports semantic similarity search alongside structured relationship
+queries. HelixDB is written in Rust and released under a commercial license.

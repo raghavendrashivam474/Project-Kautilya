@@ -1,0 +1,56 @@
+﻿# Project Kautilya — Corpus Manifest
+# Fictional technology ecosystem for S1 knowledge world.
+# All entities, people, and companies are invented for research purposes.
+
+version: "1.0"
+domain: "fictional-tech-ecosystem"
+
+documents:
+  - id: doc_001
+    title: "Nova Systems"
+    source: doc_001.txt
+    metadata: { subject: company, primary_entity: "Nova Systems" }
+  - id: doc_002
+    title: "Vector Labs"
+    source: doc_002.txt
+    metadata: { subject: company, primary_entity: "Vector Labs" }
+  - id: doc_003
+    title: "HelixDB"
+    source: doc_003.txt
+    metadata: { subject: technology, primary_entity: "HelixDB" }
+  - id: doc_004
+    title: "Orion Analytics"
+    source: doc_004.txt
+    metadata: { subject: company, primary_entity: "Orion Analytics" }
+  - id: doc_005
+    title: "Nova acquires Vector Labs"
+    source: doc_005.txt
+    metadata: { subject: event, primary_entity: "Nova Systems" }
+  - id: doc_006
+    title: "Mira Sharma"
+    source: doc_006.txt
+    metadata: { subject: person, primary_entity: "Mira Sharma" }
+  - id: doc_007
+    title: "Arjun Mehta"
+    source: doc_007.txt
+    metadata: { subject: person, primary_entity: "Arjun Mehta" }
+  - id: doc_008
+    title: "Nova AI Division"
+    source: doc_008.txt
+    metadata: { subject: organization, primary_entity: "Nova AI Division" }
+  - id: doc_009
+    title: "Kaveri language model"
+    source: doc_009.txt
+    metadata: { subject: product, primary_entity: "Kaveri" }
+  - id: doc_010
+    title: "Anand Iyer"
+    source: doc_010.txt
+    metadata: { subject: person, primary_entity: "Anand Iyer" }
+  - id: doc_011
+    title: "Meridian Cloud partnership"
+    source: doc_011.txt
+    metadata: { subject: partnership, primary_entity: "Meridian Cloud" }
+  - id: doc_012
+    title: "Rohan Kapoor"
+    source: doc_012.txt
+    metadata: { subject: person, primary_entity: "Rohan Kapoor" }

@@ -1,0 +1,3 @@
+﻿Kaveri is a large language model developed by the Nova Systems artificial
+intelligence division. It is trained on multilingual Indian text and is
+deployed as a commercial API. Kaveri uses HelixDB for its retrieval layer.
