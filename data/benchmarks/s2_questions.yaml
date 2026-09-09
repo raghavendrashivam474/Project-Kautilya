@@ -1,0 +1,252 @@
+questions:
+- id: q_001
+  question: What is Nova Systems?
+  knowledge_requirement: semantic
+  reasoning_complexity: 0-hop
+  expected_evidence:
+  - document_id: doc_001
+    chunk_id: chunk_001_001
+- id: q_002
+  question: What is Vector Labs?
+  knowledge_requirement: semantic
+  reasoning_complexity: 0-hop
+  expected_evidence:
+  - document_id: doc_002
+    chunk_id: chunk_002_001
+- id: q_003
+  question: What is HelixDB?
+  knowledge_requirement: semantic
+  reasoning_complexity: 0-hop
+  expected_evidence:
+  - document_id: doc_003
+    chunk_id: chunk_003_001
+- id: q_004
+  question: What is Orion Analytics?
+  knowledge_requirement: semantic
+  reasoning_complexity: 0-hop
+  expected_evidence:
+  - document_id: doc_004
+    chunk_id: chunk_004_001
+- id: q_005
+  question: What is Kaveri?
+  knowledge_requirement: semantic
+  reasoning_complexity: 0-hop
+  expected_evidence:
+  - document_id: doc_009
+    chunk_id: chunk_009_001
+- id: q_006
+  question: What is Meridian Cloud?
+  knowledge_requirement: semantic
+  reasoning_complexity: 0-hop
+  expected_evidence:
+  - document_id: doc_011
+    chunk_id: chunk_011_001
+- id: q_007
+  question: Who is Mira Sharma?
+  knowledge_requirement: semantic
+  reasoning_complexity: 0-hop
+  expected_evidence:
+  - document_id: doc_006
+    chunk_id: chunk_006_001
+- id: q_008
+  question: Who is Anand Iyer?
+  knowledge_requirement: semantic
+  reasoning_complexity: 0-hop
+  expected_evidence:
+  - document_id: doc_010
+    chunk_id: chunk_010_001
+- id: q_009
+  question: Who is Arjun Mehta?
+  knowledge_requirement: semantic
+  reasoning_complexity: 0-hop
+  expected_evidence:
+  - document_id: doc_007
+    chunk_id: chunk_007_001
+- id: q_010
+  question: Who is Rohan Kapoor?
+  knowledge_requirement: semantic
+  reasoning_complexity: 0-hop
+  expected_evidence:
+  - document_id: doc_012
+    chunk_id: chunk_012_001
+- id: q_011
+  question: What technology did Vector Labs develop?
+  knowledge_requirement: semantic
+  reasoning_complexity: 1-hop
+  expected_evidence:
+  - document_id: doc_002
+    chunk_id: chunk_002_001
+  - document_id: doc_003
+    chunk_id: chunk_003_001
+- id: q_012
+  question: What language is HelixDB written in?
+  knowledge_requirement: semantic
+  reasoning_complexity: 1-hop
+  expected_evidence:
+  - document_id: doc_003
+    chunk_id: chunk_003_001
+- id: q_013
+  question: What database backend does Orion Analytics use?
+  knowledge_requirement: semantic
+  reasoning_complexity: 1-hop
+  expected_evidence:
+  - document_id: doc_004
+    chunk_id: chunk_004_001
+- id: q_014
+  question: What does Nova Systems artificial intelligence division develop?
+  knowledge_requirement: semantic
+  reasoning_complexity: 1-hop
+  expected_evidence:
+  - document_id: doc_008
+    chunk_id: chunk_008_001
+- id: q_015
+  question: What database does the Kaveri language model use for retrieval?
+  knowledge_requirement: semantic
+  reasoning_complexity: 1-hop
+  expected_evidence:
+  - document_id: doc_009
+    chunk_id: chunk_009_001
+- id: q_016
+  question: Who founded Nova Systems?
+  knowledge_requirement: structural
+  reasoning_complexity: 1-hop
+  expected_evidence:
+  - document_id: doc_001
+    chunk_id: chunk_001_001
+  - document_id: doc_012
+    chunk_id: chunk_012_001
+- id: q_017
+  question: Who founded Vector Labs?
+  knowledge_requirement: structural
+  reasoning_complexity: 1-hop
+  expected_evidence:
+  - document_id: doc_002
+    chunk_id: chunk_002_001
+  - document_id: doc_006
+    chunk_id: chunk_006_001
+  - document_id: doc_010
+    chunk_id: chunk_010_001
+- id: q_018
+  question: Where is Orion Analytics headquartered?
+  knowledge_requirement: structural
+  reasoning_complexity: 1-hop
+  expected_evidence:
+  - document_id: doc_004
+    chunk_id: chunk_004_001
+- id: q_019
+  question: Where is Meridian Cloud located?
+  knowledge_requirement: structural
+  reasoning_complexity: 1-hop
+  expected_evidence:
+  - document_id: doc_011
+    chunk_id: chunk_011_001
+- id: q_020
+  question: When was Vector Labs founded?
+  knowledge_requirement: structural
+  reasoning_complexity: 1-hop
+  expected_evidence:
+  - document_id: doc_002
+    chunk_id: chunk_002_001
+  - document_id: doc_006
+    chunk_id: chunk_006_001
+- id: q_021
+  question: When was Nova Systems founded?
+  knowledge_requirement: structural
+  reasoning_complexity: 1-hop
+  expected_evidence:
+  - document_id: doc_001
+    chunk_id: chunk_001_001
+  - document_id: doc_012
+    chunk_id: chunk_012_001
+- id: q_022
+  question: How much did Nova Systems pay to acquire Vector Labs?
+  knowledge_requirement: structural
+  reasoning_complexity: 1-hop
+  expected_evidence:
+  - document_id: doc_005
+    chunk_id: chunk_005_001
+- id: q_023
+  question: Which company developed the database that Orion Analytics uses?
+  knowledge_requirement: structural
+  reasoning_complexity: 2-hop
+  expected_evidence:
+  - document_id: doc_004
+    chunk_id: chunk_004_001
+  - document_id: doc_003
+    chunk_id: chunk_003_001
+  - document_id: doc_002
+    chunk_id: chunk_002_001
+- id: q_024
+  question: Which firm does Arjun Mehta company rely on for its data storage?
+  knowledge_requirement: structural
+  reasoning_complexity: 2-hop
+  expected_evidence:
+  - document_id: doc_007
+    chunk_id: chunk_007_001
+  - document_id: doc_004
+    chunk_id: chunk_004_001
+  - document_id: doc_003
+    chunk_id: chunk_003_001
+- id: q_025
+  question: Who leads the division that developed the Kaveri language model?
+  knowledge_requirement: structural
+  reasoning_complexity: 2-hop
+  expected_evidence:
+  - document_id: doc_009
+    chunk_id: chunk_009_001
+  - document_id: doc_008
+    chunk_id: chunk_008_001
+  - document_id: doc_006
+    chunk_id: chunk_006_001
+- id: q_026
+  question: Who acquired the company that developed HelixDB?
+  knowledge_requirement: hybrid
+  reasoning_complexity: multi-hop
+  expected_evidence:
+  - document_id: doc_005
+    chunk_id: chunk_005_001
+  - document_id: doc_003
+    chunk_id: chunk_003_001
+  - document_id: doc_001
+    chunk_id: chunk_001_001
+- id: q_027
+  question: What position did Mira Sharma take after Vector Labs was acquired?
+  knowledge_requirement: hybrid
+  reasoning_complexity: multi-hop
+  expected_evidence:
+  - document_id: doc_005
+    chunk_id: chunk_005_001
+  - document_id: doc_006
+    chunk_id: chunk_006_001
+  - document_id: doc_008
+    chunk_id: chunk_008_001
+- id: q_028
+  question: Which products in Nova Systems portfolio use HelixDB?
+  knowledge_requirement: hybrid
+  reasoning_complexity: multi-hop
+  expected_evidence:
+  - document_id: doc_009
+    chunk_id: chunk_009_001
+  - document_id: doc_005
+    chunk_id: chunk_005_001
+- id: q_029
+  question: What cloud provider offers managed services for the database developed
+    in Pune?
+  knowledge_requirement: hybrid
+  reasoning_complexity: multi-hop
+  expected_evidence:
+  - document_id: doc_011
+    chunk_id: chunk_011_001
+  - document_id: doc_002
+    chunk_id: chunk_002_001
+- id: q_030
+  question: How are Rohan Kapoor and Mira Sharma connected through corporate acquisitions?
+  knowledge_requirement: hybrid
+  reasoning_complexity: multi-hop
+  expected_evidence:
+  - document_id: doc_005
+    chunk_id: chunk_005_001
+  - document_id: doc_012
+    chunk_id: chunk_012_001
+  - document_id: doc_006
+    chunk_id: chunk_006_001
