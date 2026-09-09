@@ -1,0 +1,16 @@
+﻿sprint: s5
+name: hybrid_reasoning
+
+reasoning:
+  max_hops: 2
+  default_score: 0.95
+  fallback_to_fusion: true
+
+fusion_weights:
+  semantic: 1.0
+  structural: 1.0
+  agreement_bonus: 0.5
+  reasoning_bonus: 0.8
+
+retrieval:
+  top_k: 5
