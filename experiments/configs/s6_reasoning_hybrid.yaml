@@ -1,0 +1,36 @@
+﻿# S6 Experiment Configuration — Reasoning-Aware Hybrid Retrieval
+# Baseline: S4 hybrid (semantic + KAG) + S5 reasoning integration
+
+experiment:
+  name: "s6_reasoning_aware_fusion"
+  sprint: "S6"
+  description: "Three-way evidence fusion combining semantic, structural, and reasoning retrieval."
+
+embedding:
+  model: "all-MiniLM-L6-v2"
+  dimension: 384
+  similarity_metric: "cosine"
+  normalize_embeddings: true
+
+retrieval:
+  semantic_top_k: 5
+  kag_max_hops: 2
+  kag_top_k: 5
+  reasoning_max_hops: 2
+  reasoning_base_score: 0.95
+  fused_top_k: 5
+
+fusion:
+  strategy: "rank_based"
+  semantic_weight: 1.0
+  structural_weight: 1.0
+  reasoning_weight: 1.0
+  agreement_bonus: 0.5
+  tie_breaking: "deterministic"
+
+evaluation:
+  benchmark: "data/benchmarks/s6_questions.yaml"
+  metrics:
+    - "recall@1"
+    - "recall@3"
+    - "recall@5"
