@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+
+# Tool caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Environment / secrets
+.env
+.env.*
+
+# Generated logs
+*.log
+
+# Experiment outputs
+experiments/results/*
+
+# Generated knowledge artifacts
+data/knowledge/*
+
+# OS
+.DS_Store
+Thumbs.db
