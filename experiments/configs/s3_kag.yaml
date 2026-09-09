@@ -1,0 +1,11 @@
+﻿# S3 KAG Baseline Configuration
+retrieval:
+  method: structural
+  max_hops: 2
+  top_k: 5
+  seed_resolution:
+    case_sensitive: false
+    match_aliases: true
+    match_ids: true
+benchmark:
+  file: data/benchmarks/s3_questions.yaml

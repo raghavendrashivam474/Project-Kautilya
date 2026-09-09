@@ -1,0 +1,300 @@
+﻿# Project Kautilya — S3 KAG Retrieval Benchmark
+# Designed specifically to test structural knowledge retrieval, entity resolution,
+# 1-hop, 2-hop, and multi-hop relation traversal over the S1 knowledge corpus.
+
+sprint: s3
+description: "KAG structural retrieval baseline benchmark"
+corpus_version: "v0.1"
+
+questions:
+  # ── Entity / Relation direct lookup (4 questions) ──────────────
+  - id: s3_q01
+    question: "Where is Nova Systems headquartered?"
+    category: "entity_lookup"
+    complexity: "1-hop"
+    seed_entities: ["ent_001"]
+    expected_relations: ["rel_002"]
+    expected_evidence:
+      - { document_id: "doc_001", chunk_id: "chunk_001_001" }
+
+  - id: s3_q02
+    question: "Where is Vector Labs located?"
+    category: "entity_lookup"
+    complexity: "1-hop"
+    seed_entities: ["ent_002"]
+    expected_relations: ["rel_012"]
+    expected_evidence:
+      - { document_id: "doc_002", chunk_id: "chunk_002_001" }
+
+  - id: s3_q03
+    question: "Where is Orion Analytics headquartered?"
+    category: "entity_lookup"
+    complexity: "1-hop"
+    seed_entities: ["ent_003"]
+    expected_relations: ["rel_020"]
+    expected_evidence:
+      - { document_id: "doc_004", chunk_id: "chunk_004_001" }
+
+  - id: s3_q04
+    question: "Where is Meridian Cloud located?"
+    category: "entity_lookup"
+    complexity: "1-hop"
+    seed_entities: ["ent_004"]
+    expected_relations: ["rel_060"]
+    expected_evidence:
+      - { document_id: "doc_011", chunk_id: "chunk_011_001" }
+
+  # ── 1-hop Structural questions (8 questions) ────────────────────
+  - id: s3_q05
+    question: "Who founded Nova Systems?"
+    category: "1-hop_structural"
+    complexity: "1-hop"
+    seed_entities: ["ent_001"]
+    expected_relations: ["rel_001", "rel_003"]
+    expected_evidence:
+      - { document_id: "doc_001", chunk_id: "chunk_001_001" }
+      - { document_id: "doc_012", chunk_id: "chunk_012_001" }
+
+  - id: s3_q06
+    question: "Who co-founded Vector Labs?"
+    category: "1-hop_structural"
+    complexity: "1-hop"
+    seed_entities: ["ent_002"]
+    expected_relations: ["rel_010", "rel_011"]
+    expected_evidence:
+      - { document_id: "doc_002", chunk_id: "chunk_002_001" }
+
+  - id: s3_q07
+    question: "What technology did Vector Labs develop?"
+    category: "1-hop_structural"
+    complexity: "1-hop"
+    seed_entities: ["ent_002"]
+    expected_relations: ["rel_013", "rel_014"]
+    expected_evidence:
+      - { document_id: "doc_002", chunk_id: "chunk_002_001" }
+      - { document_id: "doc_003", chunk_id: "chunk_003_001" }
+
+  - id: s3_q08
+    question: "What technology does Orion Analytics use?"
+    category: "1-hop_structural"
+    complexity: "1-hop"
+    seed_entities: ["ent_003"]
+    expected_relations: ["rel_021"]
+    expected_evidence:
+      - { document_id: "doc_004", chunk_id: "chunk_004_001" }
+
+  - id: s3_q09
+    question: "Who acquired Vector Labs?"
+    category: "1-hop_structural"
+    complexity: "1-hop"
+    seed_entities: ["ent_002"]
+    expected_relations: ["rel_030"]
+    expected_evidence:
+      - { document_id: "doc_005", chunk_id: "chunk_005_001" }
+
+  - id: s3_q10
+    question: "Who leads the Nova AI Division?"
+    category: "1-hop_structural"
+    complexity: "1-hop"
+    seed_entities: ["ent_040"]
+    expected_relations: ["rel_040"]
+    expected_evidence:
+      - { document_id: "doc_008", chunk_id: "chunk_008_001" }
+
+  - id: s3_q11
+    question: "What product did the Nova AI Division develop?"
+    category: "1-hop_structural"
+    complexity: "1-hop"
+    seed_entities: ["ent_040"]
+    expected_relations: ["rel_042"]
+    expected_evidence:
+      - { document_id: "doc_009", chunk_id: "chunk_009_001" }
+
+  - id: s3_q12
+    question: "Who partnered with Vector Labs?"
+    category: "1-hop_structural"
+    complexity: "1-hop"
+    seed_entities: ["ent_002"]
+    expected_relations: ["rel_061"]
+    expected_evidence:
+      - { document_id: "doc_011", chunk_id: "chunk_011_001" }
+
+  # ── 2-hop Structural questions (8 questions) ────────────────────
+  - id: s3_q13
+    question: "What technology is used by the company acquired by Nova Systems?"
+    category: "2-hop_structural"
+    complexity: "2-hop"
+    seed_entities: ["ent_001"]
+    expected_relations: ["rel_030", "rel_013"]
+    expected_evidence:
+      - { document_id: "doc_005", chunk_id: "chunk_005_001" }
+      - { document_id: "doc_002", chunk_id: "chunk_002_001" }
+
+  - id: s3_q14
+    question: "Where is the creator of HelixDB headquartered?"
+    category: "2-hop_structural"
+    complexity: "2-hop"
+    seed_entities: ["ent_020"]
+    expected_relations: ["rel_013", "rel_012"]
+    expected_evidence:
+      - { document_id: "doc_002", chunk_id: "chunk_002_001" }
+
+  - id: s3_q15
+    question: "Which companies are connected to Mira Sharma through leadership or co-founding?"
+    category: "2-hop_structural"
+    complexity: "2-hop"
+    seed_entities: ["ent_010"]
+    expected_relations: ["rel_010", "rel_070", "rel_040"]
+    expected_evidence:
+      - { document_id: "doc_002", chunk_id: "chunk_002_001" }
+      - { document_id: "doc_006", chunk_id: "chunk_006_001" }
+      - { document_id: "doc_008", chunk_id: "chunk_008_001" }
+
+  - id: s3_q16
+    question: "What product created by Nova AI Division uses HelixDB?"
+    category: "2-hop_structural"
+    complexity: "2-hop"
+    seed_entities: ["ent_040", "ent_020"]
+    expected_relations: ["rel_042", "rel_043"]
+    expected_evidence:
+      - { document_id: "doc_009", chunk_id: "chunk_009_001" }
+
+  - id: s3_q17
+    question: "What company does Arjun Mehta lead, and what technology does it use?"
+    category: "2-hop_structural"
+    complexity: "2-hop"
+    seed_entities: ["ent_011"]
+    expected_relations: ["rel_023", "rel_021"]
+    expected_evidence:
+      - { document_id: "doc_007", chunk_id: "chunk_007_001" }
+      - { document_id: "doc_004", chunk_id: "chunk_004_001" }
+
+  - id: s3_q18
+    question: "What partner company is connected to Vector Labs and where is it located?"
+    category: "2-hop_structural"
+    complexity: "2-hop"
+    seed_entities: ["ent_002"]
+    expected_relations: ["rel_061", "rel_060"]
+    expected_evidence:
+      - { document_id: "doc_011", chunk_id: "chunk_011_001" }
+
+  - id: s3_q19
+    question: "Who co-founded the company that developed HelixDB?"
+    category: "2-hop_structural"
+    complexity: "2-hop"
+    seed_entities: ["ent_020"]
+    expected_relations: ["rel_013", "rel_010", "rel_011"]
+    expected_evidence:
+      - { document_id: "doc_002", chunk_id: "chunk_002_001" }
+
+  - id: s3_q20
+    question: "Where is the founder of Nova Systems connected?"
+    category: "2-hop_structural"
+    complexity: "2-hop"
+    seed_entities: ["ent_001", "ent_013"]
+    expected_relations: ["rel_001", "rel_002"]
+    expected_evidence:
+      - { document_id: "doc_001", chunk_id: "chunk_001_001" }
+
+  # ── Multi-hop questions (6 questions) ───────────────────────────
+  - id: s3_q21
+    question: "What is the complete relationship path between Nova Systems and HelixDB?"
+    category: "multi-hop"
+    complexity: "multi-hop"
+    seed_entities: ["ent_001", "ent_020"]
+    expected_relations: ["rel_030", "rel_013"]
+    expected_evidence:
+      - { document_id: "doc_005", chunk_id: "chunk_005_001" }
+      - { document_id: "doc_002", chunk_id: "chunk_002_001" }
+
+  - id: s3_q22
+    question: "How is Mira Sharma connected to Kaveri?"
+    category: "multi-hop"
+    complexity: "multi-hop"
+    seed_entities: ["ent_010", "ent_030"]
+    expected_relations: ["rel_040", "rel_042"]
+    expected_evidence:
+      - { document_id: "doc_008", chunk_id: "chunk_008_001" }
+      - { document_id: "doc_009", chunk_id: "chunk_009_001" }
+
+  - id: s3_q23
+    question: "How is Meridian Cloud connected to HelixDB through partnerships?"
+    category: "multi-hop"
+    complexity: "multi-hop"
+    seed_entities: ["ent_004", "ent_020"]
+    expected_relations: ["rel_061", "rel_013"]
+    expected_evidence:
+      - { document_id: "doc_011", chunk_id: "chunk_011_001" }
+      - { document_id: "doc_002", chunk_id: "chunk_002_001" }
+
+  - id: s3_q24
+    question: "How are Orion Analytics and Vector Labs related through technology usage?"
+    category: "multi-hop"
+    complexity: "multi-hop"
+    seed_entities: ["ent_003", "ent_002"]
+    expected_relations: ["rel_021", "rel_013"]
+    expected_evidence:
+      - { document_id: "doc_004", chunk_id: "chunk_004_001" }
+      - { document_id: "doc_002", chunk_id: "chunk_002_001" }
+
+  - id: s3_q25
+    question: "What connects Anand Iyer to Nova Systems through the acquisition of Vector Labs?"
+    category: "multi-hop"
+    complexity: "multi-hop"
+    seed_entities: ["ent_012", "ent_001"]
+    expected_relations: ["rel_011", "rel_030"]
+    expected_evidence:
+      - { document_id: "doc_002", chunk_id: "chunk_002_001" }
+      - { document_id: "doc_005", chunk_id: "chunk_005_001" }
+
+  - id: s3_q26
+    question: "How does Kaveri connect to Vector Labs through shared technology?"
+    category: "multi-hop"
+    complexity: "multi-hop"
+    seed_entities: ["ent_030", "ent_002"]
+    expected_relations: ["rel_043", "rel_013"]
+    expected_evidence:
+      - { document_id: "doc_009", chunk_id: "chunk_009_001" }
+      - { document_id: "doc_002", chunk_id: "chunk_002_001" }
+
+  # ── Structural edge cases (4 questions) ─────────────────────────
+  - id: s3_q27
+    question: "What all entities are connected to Pune?"
+    category: "edge_case"
+    complexity: "1-hop"
+    seed_entities: ["ent_051"]
+    expected_relations: ["rel_012", "rel_051"]
+    expected_evidence:
+      - { document_id: "doc_002", chunk_id: "chunk_002_001" }
+      - { document_id: "doc_010", chunk_id: "chunk_010_001" }
+
+  - id: s3_q28
+    question: "What organizations are located in Bengaluru?"
+    category: "edge_case"
+    complexity: "1-hop"
+    seed_entities: ["ent_050"]
+    expected_relations: ["rel_002", "rel_041"]
+    expected_evidence:
+      - { document_id: "doc_001", chunk_id: "chunk_001_001" }
+      - { document_id: "doc_008", chunk_id: "chunk_008_001" }
+
+  - id: s3_q29
+    question: "What technologies and products are linked to HelixDB?"
+    category: "edge_case"
+    complexity: "1-hop"
+    seed_entities: ["ent_020"]
+    expected_relations: ["rel_013", "rel_021", "rel_043"]
+    expected_evidence:
+      - { document_id: "doc_002", chunk_id: "chunk_002_001" }
+      - { document_id: "doc_004", chunk_id: "chunk_004_001" }
+      - { document_id: "doc_009", chunk_id: "chunk_009_001" }
+
+  - id: s3_q30
+    question: "What are all roles held by Rohan Kapoor?"
+    category: "edge_case"
+    complexity: "1-hop"
+    seed_entities: ["ent_013"]
+    expected_relations: ["rel_001", "rel_003"]
+    expected_evidence:
+      - { document_id: "doc_001", chunk_id: "chunk_001_001" }
+      - { document_id: "doc_012", chunk_id: "chunk_012_001" }
