@@ -1,0 +1,238 @@
+﻿# S5 Hybrid Reasoning Benchmark
+# ------------------------------------------
+# Categories:
+#   1. multi_hop_compositional — Multi-hop relational questions (Primary S5 Target)
+#   2. structural_direct       — Direct 1-hop relational queries
+#   3. semantic_topical        — Descriptive / conceptual questions
+#   4. ambiguous_hub           — Highly connected entities
+#   5. unsupported_boundary    — Out of corpus / invalid relation questions
+
+questions:
+  # ── Category 1: Multi-Hop Compositional (Primary S5 Target) ──
+  - id: s5_q01
+    question: "Who founded the company that acquired Vector Labs?"
+    category: multi_hop_compositional
+    complexity: 2-hop
+    expected_evidence:
+      - document_id: doc_001
+        chunk_id: chunk_001_001
+      - document_id: doc_005
+        chunk_id: chunk_005_001
+      - document_id: doc_012
+        chunk_id: chunk_012_001
+
+  - id: s5_q02
+    question: "Who co-founded the company that Nova Systems acquired?"
+    category: multi_hop_compositional
+    complexity: 2-hop
+    expected_evidence:
+      - document_id: doc_002
+        chunk_id: chunk_002_001
+      - document_id: doc_005
+        chunk_id: chunk_005_001
+      - document_id: doc_006
+        chunk_id: chunk_006_001
+
+  - id: s5_q03
+    question: "Who acquired the company that developed HelixDB?"
+    category: multi_hop_compositional
+    complexity: 2-hop
+    expected_evidence:
+      - document_id: doc_005
+        chunk_id: chunk_005_001
+      - document_id: doc_002
+        chunk_id: chunk_002_001
+
+  - id: s5_q04
+    question: "Which cloud provider works with the company that built HelixDB?"
+    category: multi_hop_compositional
+    complexity: 2-hop
+    expected_evidence:
+      - document_id: doc_011
+        chunk_id: chunk_011_001
+      - document_id: doc_004
+        chunk_id: chunk_004_001
+
+  - id: s5_q05
+    question: "What technology was developed by the company that Nova Systems acquired?"
+    category: multi_hop_compositional
+    complexity: 2-hop
+    expected_evidence:
+      - document_id: doc_002
+        chunk_id: chunk_002_001
+      - document_id: doc_003
+        chunk_id: chunk_003_001
+      - document_id: doc_005
+        chunk_id: chunk_005_001
+
+  # ── Category 2: Structural Direct (1-hop) ─────────────────
+  - id: s5_q06
+    question: "Where is Nova Systems headquartered?"
+    category: structural_direct
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_001
+        chunk_id: chunk_001_001
+
+  - id: s5_q07
+    question: "Who founded Meridian Cloud?"
+    category: structural_direct
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_007
+        chunk_id: chunk_007_001
+
+  - id: s5_q08
+    question: "Where is Vector Labs located?"
+    category: structural_direct
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_002
+        chunk_id: chunk_002_001
+
+  - id: s5_q09
+    question: "Who founded Nova Systems?"
+    category: structural_direct
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_001
+        chunk_id: chunk_001_001
+      - document_id: doc_012
+        chunk_id: chunk_012_001
+
+  - id: s5_q10
+    question: "Who leads the Nova Systems AI division?"
+    category: structural_direct
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_008
+        chunk_id: chunk_008_001
+
+  # ── Category 3: Semantic Topical ──────────────────────────
+  - id: s5_q11
+    question: "What does Vector Labs do?"
+    category: semantic_topical
+    complexity: 0-hop
+    expected_evidence:
+      - document_id: doc_002
+        chunk_id: chunk_002_001
+
+  - id: s5_q12
+    question: "Describe the founding and background of Nova Systems."
+    category: semantic_topical
+    complexity: 0-hop
+    expected_evidence:
+      - document_id: doc_001
+        chunk_id: chunk_001_001
+
+  - id: s5_q13
+    question: "What is HelixDB and how is it used?"
+    category: semantic_topical
+    complexity: 0-hop
+    expected_evidence:
+      - document_id: doc_003
+        chunk_id: chunk_003_001
+
+  - id: s5_q14
+    question: "What is Kaveri and how does it relate to foundation models?"
+    category: semantic_topical
+    complexity: 0-hop
+    expected_evidence:
+      - document_id: doc_009
+        chunk_id: chunk_009_001
+
+  - id: s5_q15
+    question: "What is the background of Anand Iyer as an engineer?"
+    category: semantic_topical
+    complexity: 0-hop
+    expected_evidence:
+      - document_id: doc_010
+        chunk_id: chunk_010_001
+
+  # ── Category 4: Ambiguous Hub Entities ─────────────────────
+  - id: s5_q16
+    question: "What are the various roles and affiliations of Mira Sharma?"
+    category: ambiguous_hub
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_006
+        chunk_id: chunk_006_001
+      - document_id: doc_008
+        chunk_id: chunk_008_001
+      - document_id: doc_002
+        chunk_id: chunk_002_001
+
+  - id: s5_q17
+    question: "Tell me about the leadership and expansion of Nova Systems."
+    category: ambiguous_hub
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_001
+        chunk_id: chunk_001_001
+      - document_id: doc_005
+        chunk_id: chunk_005_001
+      - document_id: doc_012
+        chunk_id: chunk_012_001
+
+  - id: s5_q18
+    question: "What organizations and products are associated with HelixDB?"
+    category: ambiguous_hub
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_003
+        chunk_id: chunk_003_001
+      - document_id: doc_004
+        chunk_id: chunk_004_001
+      - document_id: doc_005
+        chunk_id: chunk_005_001
+
+  - id: s5_q19
+    question: "What is the connection between Meridian Cloud and HelixDB?"
+    category: ambiguous_hub
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_004
+        chunk_id: chunk_004_001
+      - document_id: doc_011
+        chunk_id: chunk_011_001
+
+  - id: s5_q20
+    question: "What technologies does Nova Systems AI division utilize?"
+    category: ambiguous_hub
+    complexity: 1-hop
+    expected_evidence:
+      - document_id: doc_008
+        chunk_id: chunk_008_001
+      - document_id: doc_009
+        chunk_id: chunk_009_001
+
+  # ── Category 5: Unsupported / Boundary Cases ──────────────
+  - id: s5_q21
+    question: "Who is the chief executive of Cyberdyne Systems?"
+    category: unsupported_boundary
+    complexity: 0-hop
+    expected_evidence: []
+
+  - id: s5_q22
+    question: "Who founded the company that acquired Cyberdyne Systems?"
+    category: unsupported_boundary
+    complexity: 2-hop
+    expected_evidence: []
+
+  - id: s5_q23
+    question: "Which semiconductor manufacturer supplied Nova Systems in 2020?"
+    category: unsupported_boundary
+    complexity: 1-hop
+    expected_evidence: []
+
+  - id: s5_q24
+    question: "What operating system does HelixDB run on?"
+    category: unsupported_boundary
+    complexity: 0-hop
+    expected_evidence: []
+
+  - id: s5_q25
+    question: "Who founded the venture capital firm that funded Vector Labs?"
+    category: unsupported_boundary
+    complexity: 2-hop
+    expected_evidence: []
