@@ -1,0 +1,3 @@
+﻿Meridian Cloud is a cloud infrastructure provider headquartered in Singapore.
+In 2023, Meridian Cloud partnered with Vector Labs to offer managed HelixDB
+deployments. The partnership continued after Nova Systems acquired Vector Labs.

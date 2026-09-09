@@ -1,0 +1,3 @@
+﻿The Nova Systems artificial intelligence division develops foundation models
+and applied AI products. The division is headquartered in Bengaluru and is
+led by Mira Sharma. Its flagship product is the Kaveri language model.
