@@ -1,0 +1,314 @@
+﻿# S6 Benchmark: Reasoning-Aware Evidence Selection
+# 30 diagnostic questions across 6 categories
+# Corpus: S1 (12 docs, 12 chunks, 15 entities, 23 relations)
+
+benchmark_id: "s6_reasoning_aware_benchmark"
+description: "Diagnostic benchmark evaluating semantic, KAG, S4 fusion, S5 reasoning, and S6 three-way fusion."
+version: "1.0"
+
+questions:
+  # =========================================================================
+  # Category A: S4 Failure Recovery (Canonical multi-hop failures from S4)
+  # =========================================================================
+  - id: "s6_q01"
+    category: "s4_failure_recovery"
+    question: "Who founded the company that acquired Vector Labs?"
+    reasoning_type: "multi_hop_chain"
+    expected_evidence:
+      - chunk_id: "chunk_001_001"
+      - chunk_id: "chunk_012_001"
+    expected_entities:
+      - "Rohan Kapoor"
+      - "Nova Systems"
+      - "Vector Labs"
+
+  - id: "s6_q02"
+    category: "s4_failure_recovery"
+    question: "Who co-founded the company that Nova Systems acquired?"
+    reasoning_type: "multi_hop_chain"
+    expected_evidence:
+      - chunk_id: "chunk_002_001"
+      - chunk_id: "chunk_006_001"
+    expected_entities:
+      - "Mira Sharma"
+      - "Anand Iyer"
+      - "Vector Labs"
+
+  # =========================================================================
+  # Category B: Multi-Hop Reasoning (Compositional chains)
+  # =========================================================================
+  - id: "s6_q03"
+    category: "multi_hop_reasoning"
+    question: "Who acquired the company that developed HelixDB?"
+    reasoning_type: "multi_hop_chain"
+    expected_evidence:
+      - chunk_id: "chunk_005_001"
+      - chunk_id: "chunk_001_001"
+    expected_entities:
+      - "Nova Systems"
+      - "Vector Labs"
+      - "HelixDB"
+
+  - id: "s6_q04"
+    category: "multi_hop_reasoning"
+    question: "Which provider works with the company that built HelixDB?"
+    reasoning_type: "multi_hop_chain"
+    expected_evidence:
+      - chunk_id: "chunk_005_001"
+      - chunk_id: "chunk_004_001"
+    expected_entities:
+      - "Aura Cloud"
+      - "Vector Labs"
+      - "HelixDB"
+
+  - id: "s6_q05"
+    category: "multi_hop_reasoning"
+    question: "What technology was developed by the company that Nova Systems acquired?"
+    reasoning_type: "multi_hop_chain"
+    expected_evidence:
+      - chunk_id: "chunk_002_001"
+      - chunk_id: "chunk_005_001"
+    expected_entities:
+      - "HelixDB"
+      - "Vector Labs"
+      - "Nova Systems"
+
+  # =========================================================================
+  # Category C: Semantic-Friendly (Lexical/topical descriptive queries)
+  # =========================================================================
+  - id: "s6_q06"
+    category: "semantic_friendly"
+    question: "What distributed database engine specializes in high-throughput vector search?"
+    reasoning_type: "semantic_match"
+    expected_evidence:
+      - chunk_id: "chunk_005_001"
+    expected_entities:
+      - "HelixDB"
+
+  - id: "s6_q07"
+    category: "semantic_friendly"
+    question: "Tell me about cloud infrastructure and data sovereignty compliance."
+    reasoning_type: "semantic_match"
+    expected_evidence:
+      - chunk_id: "chunk_004_001"
+    expected_entities:
+      - "Aura Cloud"
+
+  - id: "s6_q08"
+    category: "semantic_friendly"
+    question: "What are the core capabilities of Chronos Engine?"
+    reasoning_type: "semantic_match"
+    expected_evidence:
+      - chunk_id: "chunk_007_001"
+    expected_entities:
+      - "Chronos Engine"
+
+  - id: "s6_q09"
+    category: "semantic_friendly"
+    question: "What does Nexus Protocol do for distributed consensus?"
+    reasoning_type: "semantic_match"
+    expected_evidence:
+      - chunk_id: "chunk_008_001"
+    expected_entities:
+      - "Nexus Protocol"
+
+  - id: "s6_q10"
+    category: "semantic_friendly"
+    question: "What security frameworks and audit standards are supported by Aether Security?"
+    reasoning_type: "semantic_match"
+    expected_evidence:
+      - chunk_id: "chunk_010_001"
+    expected_entities:
+      - "Aether Security"
+
+  # =========================================================================
+  # Category D: Structural-Friendly (Direct 1-hop relational lookups)
+  # =========================================================================
+  - id: "s6_q11"
+    category: "structural_friendly"
+    question: "Who founded Nova Systems?"
+    reasoning_type: "1hop_relation"
+    expected_evidence:
+      - chunk_id: "chunk_001_001"
+    expected_entities:
+      - "Nova Systems"
+      - "Rohan Kapoor"
+
+  - id: "s6_q12"
+    category: "structural_friendly"
+    question: "Who founded Vector Labs?"
+    reasoning_type: "1hop_relation"
+    expected_evidence:
+      - chunk_id: "chunk_002_001"
+    expected_entities:
+      - "Vector Labs"
+      - "Mira Sharma"
+      - "Anand Iyer"
+
+  - id: "s6_q13"
+    category: "structural_friendly"
+    question: "What company acquired Vector Labs?"
+    reasoning_type: "1hop_relation"
+    expected_evidence:
+      - chunk_id: "chunk_005_001"
+    expected_entities:
+      - "Nova Systems"
+      - "Vector Labs"
+
+  - id: "s6_q14"
+    category: "structural_friendly"
+    question: "What product did Vector Labs develop?"
+    reasoning_type: "1hop_relation"
+    expected_evidence:
+      - chunk_id: "chunk_002_001"
+      - chunk_id: "chunk_005_001"
+    expected_entities:
+      - "Vector Labs"
+      - "HelixDB"
+
+  - id: "s6_q15"
+    category: "structural_friendly"
+    question: "Who founded Apex Robotics?"
+    reasoning_type: "1hop_relation"
+    expected_evidence:
+      - chunk_id: "chunk_003_001"
+    expected_entities:
+      - "Apex Robotics"
+      - "Devin Vance"
+
+  # =========================================================================
+  # Category E: Ambiguous Hub Cases (Entities with many connections)
+  # =========================================================================
+  - id: "s6_q16"
+    category: "ambiguous_hub"
+    question: "What are all the entities and partnerships connected to Nova Systems?"
+    reasoning_type: "hub_expansion"
+    expected_evidence:
+      - chunk_id: "chunk_001_001"
+      - chunk_id: "chunk_005_001"
+    expected_entities:
+      - "Nova Systems"
+
+  - id: "s6_q17"
+    category: "ambiguous_hub"
+    question: "What technologies and acquisitions involve Vector Labs?"
+    reasoning_type: "hub_expansion"
+    expected_evidence:
+      - chunk_id: "chunk_002_001"
+      - chunk_id: "chunk_005_001"
+    expected_entities:
+      - "Vector Labs"
+
+  - id: "s6_q18"
+    category: "ambiguous_hub"
+    question: "How does Aura Cloud connect to the broader ecosystem?"
+    reasoning_type: "hub_expansion"
+    expected_evidence:
+      - chunk_id: "chunk_004_001"
+    expected_entities:
+      - "Aura Cloud"
+
+  - id: "s6_q19"
+    category: "ambiguous_hub"
+    question: "What products and people are associated with Pulse AI?"
+    reasoning_type: "hub_expansion"
+    expected_evidence:
+      - chunk_id: "chunk_009_001"
+    expected_entities:
+      - "Pulse AI"
+
+  - id: "s6_q20"
+    category: "ambiguous_hub"
+    question: "What is the relationship between Rohan Kapoor and Nova Systems?"
+    reasoning_type: "hub_relation"
+    expected_evidence:
+      - chunk_id: "chunk_001_001"
+      - chunk_id: "chunk_012_001"
+    expected_entities:
+      - "Rohan Kapoor"
+      - "Nova Systems"
+
+  # =========================================================================
+  # Category F: Unsupported / Boundary Cases (Out-of-corpus / Graceful Failures)
+  # =========================================================================
+  - id: "s6_q21"
+    category: "unsupported_boundary"
+    question: "Who founded Cyberdyne Systems?"
+    reasoning_type: "unsupported"
+    expected_evidence: []
+    expected_entities: []
+
+  - id: "s6_q22"
+    category: "unsupported_boundary"
+    question: "Who founded the company that acquired Initech?"
+    reasoning_type: "unsupported"
+    expected_evidence: []
+    expected_entities: []
+
+  - id: "s6_q23"
+    category: "unsupported_boundary"
+    question: "What database was developed by Stark Industries?"
+    reasoning_type: "unsupported"
+    expected_evidence: []
+    expected_entities: []
+
+  - id: "s6_q24"
+    category: "unsupported_boundary"
+    question: "Which quantum computing platform operates in Sector 7?"
+    reasoning_type: "unsupported"
+    expected_evidence: []
+    expected_entities: []
+
+  - id: "s6_q25"
+    category: "unsupported_boundary"
+    question: "What is the market valuation of Weyland-Yutani Corp?"
+    reasoning_type: "unsupported"
+    expected_evidence: []
+    expected_entities: []
+
+  # =========================================================================
+  # Additional Diagnostic Multi-Hop / Relational Pairs
+  # =========================================================================
+  - id: "s6_q26"
+    category: "multi_hop_reasoning"
+    question: "Who founded the company that acquired Vector Labs?"
+    reasoning_type: "multi_hop_chain"
+    expected_evidence:
+      - chunk_id: "chunk_001_001"
+    expected_entities:
+      - "Rohan Kapoor"
+
+  - id: "s6_q27"
+    category: "structural_friendly"
+    question: "What company does Devin Vance lead?"
+    reasoning_type: "1hop_relation"
+    expected_evidence:
+      - chunk_id: "chunk_003_001"
+    expected_entities:
+      - "Apex Robotics"
+      - "Devin Vance"
+
+  - id: "s6_q28"
+    category: "semantic_friendly"
+    question: "What are the telemetry ingest capabilities of Chronos Engine?"
+    reasoning_type: "semantic_match"
+    expected_evidence:
+      - chunk_id: "chunk_007_001"
+    expected_entities:
+      - "Chronos Engine"
+
+  - id: "s6_q29"
+    category: "ambiguous_hub"
+    question: "What are all systems integrated with Aura Cloud?"
+    reasoning_type: "hub_expansion"
+    expected_evidence:
+      - chunk_id: "chunk_004_001"
+    expected_entities:
+      - "Aura Cloud"
+
+  - id: "s6_q30"
+    category: "unsupported_boundary"
+    question: "How does Skynet manage autonomous drones?"
+    reasoning_type: "unsupported"
+    expected_evidence: []
+    expected_entities: []
