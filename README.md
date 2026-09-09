@@ -1,5 +1,5 @@
 
-## S1 — Knowledge World
+## S1 â€” Knowledge World
 
 Inspect the corpus:
 uv sync
