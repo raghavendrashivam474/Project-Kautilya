@@ -1,4 +1,4 @@
-﻿"""S5 reasoning contracts — deterministic multi-hop query decomposition.
+"""S5 reasoning contracts — deterministic multi-hop query decomposition.
 
 Justification: KnowledgePath represents *discovered* graph paths.
 ReasoningPlan represents the *intended* chain derived from question

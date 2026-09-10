@@ -1,4 +1,4 @@
-﻿"""Tests for S5 reasoning contracts — immutability, equality, determinism."""
+"""Tests for S5 reasoning contracts — immutability, equality, determinism."""
 
 from kautilya.contracts.reasoning import (
     Direction,

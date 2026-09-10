@@ -1,4 +1,4 @@
-﻿"""Execute reasoning plans against the KnowledgeGraph.
+"""Execute reasoning plans against the KnowledgeGraph.
 
 Walks the graph step-by-step according to the ReasoningPlan,
 producing a ReasoningTrace with per-hop outcomes and failure codes.
@@ -23,9 +23,7 @@ from kautilya.knowledge.graph import KnowledgeGraph
 class ReasoningExecutor:
     """Walk the KnowledgeGraph according to a ReasoningPlan."""
 
-    def __init__(
-        self, graph: KnowledgeGraph, max_hops: int = 2
-    ) -> None:
+    def __init__(self, graph: KnowledgeGraph, max_hops: int = 2) -> None:
         self._graph = graph
         self._max_hops = max_hops
 
@@ -62,11 +60,7 @@ class ReasoningExecutor:
                 relations = self._graph.get_incoming(current_id)
 
             # --- Filter by relation type ---
-            matching = [
-                r
-                for r in relations
-                if r.relation_type == step.relation_type
-            ]
+            matching = [r for r in relations if r.relation_type == step.relation_type]
 
             if not matching:
                 hops.append(
@@ -126,7 +120,9 @@ class ReasoningExecutor:
             next_name = next_entity.name if next_entity else next_id
 
             # Extract chunk_id from provenance
-            chunk_ids = (rel.provenance.chunk_id,) if rel.provenance and rel.provenance.chunk_id else ()
+            chunk_ids = (
+                (rel.provenance.chunk_id,) if rel.provenance and rel.provenance.chunk_id else ()
+            )
 
             hops.append(
                 HopResult(

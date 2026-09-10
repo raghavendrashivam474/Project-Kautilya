@@ -1,4 +1,4 @@
-﻿"""Embedding provider abstraction and local implementation for Project Kautilya."""
+"""Embedding provider abstraction and local implementation for Project Kautilya."""
 
 from __future__ import annotations
 

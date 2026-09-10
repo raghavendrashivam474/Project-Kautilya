@@ -1,4 +1,5 @@
-﻿"""Entity contract — a node in the knowledge graph."""
+"""Entity contract — a node in the knowledge graph."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

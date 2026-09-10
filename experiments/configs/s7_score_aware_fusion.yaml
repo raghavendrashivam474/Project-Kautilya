@@ -1,0 +1,31 @@
+﻿# S7 Experiment Configuration — Score-Aware Reasoning Fusion
+# Investigates whether terminal-first provenance-aware weighting resolves
+# the reasoning evidence under-weighting observed in S6.
+
+sprint: s7
+title: Score-Aware Reasoning Fusion
+baseline: v0.6
+
+parameters:
+  weights:
+    semantic: 1.0
+    structural: 1.0
+    reasoning: 1.0
+    agreement_bonus: 0.5
+  traversal:
+    max_hops: 2
+  retrieval:
+    top_k: 5
+  reasoning:
+    ordering: terminal_first
+    trace_base_score: 0.95
+
+research_question: >
+  Can score/provenance-aware weighting distinguish shallow multi-source agreement
+  from deeper reasoning-derived evidence and improve evidence ranking over the
+  v0.6 equal-weight baseline?
+
+expected_outcome:
+  r_at_1: ">= 33.3%"
+  r_at_3: ">= 54.2%"
+  r_at_5: ">= 83.3%"

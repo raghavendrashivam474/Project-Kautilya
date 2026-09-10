@@ -1,4 +1,4 @@
-﻿"""Integration test for hybrid fusion against the real S1 corpus."""
+"""Integration test for hybrid fusion against the real S1 corpus."""
 
 from __future__ import annotations
 

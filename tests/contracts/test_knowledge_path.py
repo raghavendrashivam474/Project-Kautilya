@@ -1,4 +1,4 @@
-﻿"""Unit tests for the KnowledgePath contract."""
+"""Unit tests for the KnowledgePath contract."""
 
 from dataclasses import FrozenInstanceError
 

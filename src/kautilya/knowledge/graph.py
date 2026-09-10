@@ -1,4 +1,4 @@
-﻿"""Structural knowledge index for graph traversal in Project Kautilya."""
+"""Structural knowledge index for graph traversal in Project Kautilya."""
 
 from __future__ import annotations
 
@@ -38,13 +38,9 @@ class KnowledgeGraph:
 
         # Sort for deterministic traversal order
         for rel_list in out.values():
-            rel_list.sort(
-                key=lambda r: (r.relation_type, r.target_entity_id, r.id)
-            )
+            rel_list.sort(key=lambda r: (r.relation_type, r.target_entity_id, r.id))
         for rel_list in inc.values():
-            rel_list.sort(
-                key=lambda r: (r.relation_type, r.source_entity_id, r.id)
-            )
+            rel_list.sort(key=lambda r: (r.relation_type, r.source_entity_id, r.id))
 
         return cls(
             entities=entities,
@@ -150,9 +146,7 @@ class KnowledgeGraph:
         """Return incoming relations for an entity, sorted deterministically."""
         return self.incoming.get(entity_id, ())
 
-    def traverse(
-        self, start_entity_id: str, max_hops: int = 2
-    ) -> list[KnowledgePath]:
+    def traverse(self, start_entity_id: str, max_hops: int = 2) -> list[KnowledgePath]:
         """Perform bounded BFS traversal starting from a seed entity.
 
         Explores both outgoing and incoming relations up to max_hops.
@@ -173,7 +167,9 @@ class KnowledgeGraph:
             return results
 
         # Queue items: (current_entity_id, entities_tuple, relations_tuple, directions_tuple)
-        queue: deque[tuple[str, tuple[Entity, ...], tuple[Relation, ...], tuple[str, ...]]] = deque()
+        queue: deque[tuple[str, tuple[Entity, ...], tuple[Relation, ...], tuple[str, ...]]] = (
+            deque()
+        )
         queue.append((start_entity_id, (start_entity,), (), ()))
 
         while queue:

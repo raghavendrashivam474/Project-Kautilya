@@ -1,4 +1,4 @@
-﻿"""Vector index abstraction and NumPy implementation for Project Kautilya."""
+"""Vector index abstraction and NumPy implementation for Project Kautilya."""
 
 from __future__ import annotations
 
@@ -15,9 +15,7 @@ class VectorIndex(ABC):
         """Add vectors with their identifiers to the index."""
 
     @abstractmethod
-    def search(
-        self, query_vector: list[float], top_k: int
-    ) -> list[tuple[str, float]]:
+    def search(self, query_vector: list[float], top_k: int) -> list[tuple[str, float]]:
         """Return the top_k nearest (id, score) pairs for a query vector."""
 
 
@@ -40,9 +38,7 @@ class NumpyVectorIndex(VectorIndex):
         else:
             self._vectors = np.vstack([self._vectors, new_vectors])
 
-    def search(
-        self, query_vector: list[float], top_k: int
-    ) -> list[tuple[str, float]]:
+    def search(self, query_vector: list[float], top_k: int) -> list[tuple[str, float]]:
         if self._vectors is None or len(self._ids) == 0:
             return []
 

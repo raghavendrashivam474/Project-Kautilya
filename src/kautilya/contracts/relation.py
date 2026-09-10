@@ -1,4 +1,5 @@
-﻿"""Relation contract — a typed edge with provenance back to source material."""
+"""Relation contract — a typed edge with provenance back to source material."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

@@ -1,4 +1,4 @@
-﻿"""Structural (KAG) retriever for Project Kautilya.
+"""Structural (KAG) retriever for Project Kautilya.
 
 Discovers knowledge paths by traversing explicit entities and relations,
 and converts the resulting provenance into common Evidence and RetrievalResult objects.
@@ -75,9 +75,7 @@ class KAGRetriever:
             # Check for connecting paths between seed entities
             for i, e1 in enumerate(seed_entities):
                 for e2 in seed_entities[i + 1 :]:
-                    connecting = self._graph.find_paths_between(
-                        e1.id, e2.id, max_hops=max(hops, 3)
-                    )
+                    connecting = self._graph.find_paths_between(e1.id, e2.id, max_hops=max(hops, 3))
                     for path in connecting:
                         sig = (
                             tuple(e.id for e in path.entities),
@@ -105,7 +103,9 @@ class KAGRetriever:
         # Sort paths: connecting first, score descending, hops ascending, entity names
         collected_paths.sort(
             key=lambda item: (
-                not item[2],  # False (0) is sorted before True (1), so is_connecting=True comes first
+                not item[
+                    2
+                ],  # False (0) is sorted before True (1), so is_connecting=True comes first
                 -item[0],
                 item[1].hops,
                 [e.id for e in item[1].entities],

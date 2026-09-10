@@ -1,4 +1,4 @@
-﻿"""Smoke test: reasoning package importable."""
+"""Smoke test: reasoning package importable."""
 
 
 def test_reasoning_package_importable():

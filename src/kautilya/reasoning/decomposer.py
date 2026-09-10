@@ -1,4 +1,4 @@
-﻿"""Deterministic query decomposer for compositional questions.
+"""Deterministic query decomposer for compositional questions.
 
 Pattern-based query decomposition into explicit ReasoningPlans.
 Returns None when the query does not match any known compositional pattern
@@ -113,7 +113,7 @@ class QueryDecomposer:
         idx = text.lower().rfind(keyword.lower())
         if idx == -1:
             return None
-        tail = text[idx + len(keyword):].strip()
+        tail = text[idx + len(keyword) :].strip()
         # Clean up punctuation and stop words
         cleaned = re.sub(r"[^\w\s]", "", tail).strip()
         return cleaned if cleaned else None
@@ -128,9 +128,7 @@ class QueryDecomposer:
         return None
 
     @staticmethod
-    def _extract_between(
-        text: str, start_kw: str, end_kw: str
-    ) -> str | None:
+    def _extract_between(text: str, start_kw: str, end_kw: str) -> str | None:
         t_low = text.lower()
         s = t_low.find(start_kw.lower())
         if s == -1:
@@ -138,6 +136,6 @@ class QueryDecomposer:
         e = t_low.find(end_kw.lower(), s + len(start_kw))
         if e == -1:
             return None
-        middle = text[s + len(start_kw): e].strip()
+        middle = text[s + len(start_kw) : e].strip()
         cleaned = re.sub(r"[^\w\s]", "", middle).strip()
         return cleaned if cleaned else None

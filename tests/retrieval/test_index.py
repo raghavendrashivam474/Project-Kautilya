@@ -1,4 +1,4 @@
-﻿"""Unit tests for the vector index."""
+"""Unit tests for the vector index."""
 
 from kautilya.retrieval.index import NumpyVectorIndex
 

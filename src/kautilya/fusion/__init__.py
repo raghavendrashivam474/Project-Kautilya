@@ -1,4 +1,4 @@
-﻿"""Fusion logical module for Project Kautilya."""
+"""Fusion logical module for Project Kautilya."""
 
 from kautilya.fusion.evidence_fusion import EvidenceFusion
 

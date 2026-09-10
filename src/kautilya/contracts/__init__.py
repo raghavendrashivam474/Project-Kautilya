@@ -1,4 +1,4 @@
-﻿"""Core domain contracts for Project Kautilya."""
+"""Core domain contracts for Project Kautilya."""
 
 from kautilya.contracts.chunk import Chunk
 from kautilya.contracts.document import Document

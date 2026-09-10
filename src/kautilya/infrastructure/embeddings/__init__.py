@@ -1,4 +1,4 @@
-﻿"""Embedding infrastructure for Project Kautilya."""
+"""Embedding infrastructure for Project Kautilya."""
 
 from kautilya.infrastructure.embeddings.provider import (
     EmbeddingProvider,
