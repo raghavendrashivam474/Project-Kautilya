@@ -1,4 +1,4 @@
-﻿"""Evidence Fusion module for Project Kautilya.
+"""Evidence Fusion module for Project Kautilya.
 
 Consumes Semantic (RAG), Structural (KAG), and optionally Reasoning
 RetrievalResults, deduplicates by chunk_id, applies rank-based
@@ -74,10 +74,7 @@ class EvidenceFusion:
         )
 
         # S6: reasoning participates only when it produced evidence
-        has_reasoning = (
-            reasoning_result is not None
-            and len(reasoning_result.evidence) > 0
-        )
+        has_reasoning = reasoning_result is not None and len(reasoning_result.evidence) > 0
         if has_reasoning:
             assert reasoning_result.query == semantic_result.query, (
                 f"Reasoning query must match. "
@@ -128,9 +125,7 @@ class EvidenceFusion:
             rea_norm = _rank_normalize(rea_rank, rea_k) if rea_rank else 0.0
 
             # Agreement: found by 2+ sources (generalizes S4 binary check)
-            source_count = sum(
-                1 for h in (sem_hit, kag_hit, rea_hit) if h is not None
-            )
+            source_count = sum(1 for h in (sem_hit, kag_hit, rea_hit) if h is not None)
             agreement = 1 if source_count >= 2 else 0
             if agreement:
                 agreement_count += 1
@@ -142,9 +137,7 @@ class EvidenceFusion:
                 + self.agreement_bonus * agreement
             )
 
-            best_rank = min(
-                r for r in (sem_rank, kag_rank, rea_rank) if r is not None
-            )
+            best_rank = min(r for r in (sem_rank, kag_rank, rea_rank) if r is not None)
 
             fused_ev = self._build_fused_evidence(
                 chunk_id=chunk_id,
@@ -162,24 +155,16 @@ class EvidenceFusion:
                 source_count=source_count,
             )
 
-            candidates.append(
-                (fusion_score, agreement, best_rank, chunk_id, fused_ev)
-            )
+            candidates.append((fusion_score, agreement, best_rank, chunk_id, fused_ev))
 
         # Deterministic sort: (-fusion_score, -agreement, best_rank, chunk_id)
-        candidates.sort(
-            key=lambda t: (-t[0], -t[1], t[2], t[3])
-        )
+        candidates.sort(key=lambda t: (-t[0], -t[1], t[2], t[3]))
 
         fused_evidence = [c[4] for c in candidates[:top_k]]
 
         unique_chunks = len(all_chunk_ids)
         total_input = sem_k + kag_k + rea_k
-        dedup_rate = (
-            round(1.0 - (unique_chunks / total_input), 4)
-            if total_input > 0
-            else 0.0
-        )
+        dedup_rate = round(1.0 - (unique_chunks / total_input), 4) if total_input > 0 else 0.0
 
         fusion_weights: dict[str, float] = {
             "semantic": self.semantic_weight,
@@ -243,11 +228,7 @@ class EvidenceFusion:
             origin_label = "document/chunk"
 
         # Structural > reasoning > semantic as provenance base
-        base_ev = (
-            kag_hit[1] if kag_hit
-            else rea_hit[1] if rea_hit
-            else sem_hit[1]
-        )
+        base_ev = kag_hit[1] if kag_hit else rea_hit[1] if rea_hit else sem_hit[1]
 
         # Prefer the longest non-empty text
         texts = []
@@ -302,15 +283,9 @@ class EvidenceFusion:
                 "semantic_rank": sem_rank,
                 "structural_rank": kag_rank,
                 "reasoning_rank": rea_rank,
-                "semantic_score": (
-                    round(sem_hit[1].score, 4) if sem_hit else None
-                ),
-                "structural_score": (
-                    round(kag_hit[1].score, 4) if kag_hit else None
-                ),
-                "reasoning_score": (
-                    round(rea_hit[1].score, 4) if rea_hit else None
-                ),
+                "semantic_score": (round(sem_hit[1].score, 4) if sem_hit else None),
+                "structural_score": (round(kag_hit[1].score, 4) if kag_hit else None),
+                "reasoning_score": (round(rea_hit[1].score, 4) if rea_hit else None),
                 "semantic_norm_score": round(sem_norm, 4),
                 "structural_norm_score": round(kag_norm, 4),
                 "reasoning_norm_score": round(rea_norm, 4),

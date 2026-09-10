@@ -1,4 +1,5 @@
-﻿"""Corpus — the assembled, validated knowledge world."""
+"""Corpus — the assembled, validated knowledge world."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -38,12 +39,14 @@ class Corpus:
 
     def relations_for(self, entity_id: str) -> list[Relation]:
         return [
-            r for r in self.relations
+            r
+            for r in self.relations
             if r.source_entity_id == entity_id or r.target_entity_id == entity_id
         ]
 
 
 # ---------- Loading ----------
+
 
 def _load_entities(path: Path) -> list[Entity]:
     with path.open("r", encoding="utf-8") as f:
@@ -107,6 +110,7 @@ def load_corpus(
 
 # ---------- Validation ----------
 
+
 def validate_corpus(corpus: Corpus) -> None:
     """Enforce structural integrity. Raises CorpusValidationError."""
     errors: list[str] = []
@@ -144,9 +148,7 @@ def validate_corpus(corpus: Corpus) -> None:
                 f"Relation {r.id} provenance document missing: {r.provenance.document_id}"
             )
         if r.provenance.chunk_id not in chunk_ids:
-            errors.append(
-                f"Relation {r.id} provenance chunk missing: {r.provenance.chunk_id}"
-            )
+            errors.append(f"Relation {r.id} provenance chunk missing: {r.provenance.chunk_id}")
 
     if errors:
         raise CorpusValidationError("Corpus validation failed:\n  - " + "\n  - ".join(errors))

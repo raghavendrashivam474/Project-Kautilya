@@ -1,4 +1,5 @@
-﻿"""Document contract — a source text unit in the corpus."""
+"""Document contract — a source text unit in the corpus."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

@@ -1,4 +1,4 @@
-﻿"""Unit tests for EvidenceFusion — dedup, normalization, scoring, determinism, edge cases."""
+"""Unit tests for EvidenceFusion — dedup, normalization, scoring, determinism, edge cases."""
 
 from __future__ import annotations
 
@@ -8,10 +8,14 @@ from kautilya.contracts.retrieval import Evidence, RetrievalResult
 from kautilya.fusion.evidence_fusion import EvidenceFusion, _rank_normalize
 
 
-def _mk_ev(chunk_id: str, score: float, method: str = "semantic",
-           doc_id: str | None = None,
-           provenance: dict | None = None,
-           metadata: dict | None = None) -> Evidence:
+def _mk_ev(
+    chunk_id: str,
+    score: float,
+    method: str = "semantic",
+    doc_id: str | None = None,
+    provenance: dict | None = None,
+    metadata: dict | None = None,
+) -> Evidence:
     origin = "document/chunk" if method == "semantic" else "entity/relation"
     return Evidence(
         chunk_id=chunk_id,
@@ -35,6 +39,7 @@ def _mk_result(query: str, method: str, evidence: list[Evidence]) -> RetrievalRe
 
 
 # ── _rank_normalize ────────────────────────────────────────────
+
 
 class TestRankNormalize:
     def test_rank_one_of_five(self):
@@ -61,6 +66,7 @@ class TestRankNormalize:
 
 # ── Smoke ──────────────────────────────────────────────────────
 
+
 class TestFusionSmoke:
     def test_returns_retrieval_result_with_hybrid_method(self):
         sem = _mk_result("q", "semantic", [_mk_ev("chunk_001_001", 0.9)])
@@ -85,6 +91,7 @@ class TestFusionSmoke:
 
 # ── Deduplication ──────────────────────────────────────────────
 
+
 class TestDeduplication:
     def test_same_chunk_from_both_dedupes_to_one(self):
         sem = _mk_result("q", "semantic", [_mk_ev("chunk_001_001", 0.9)])
@@ -96,14 +103,22 @@ class TestDeduplication:
         assert result.metadata["agreement_count"] == 1
 
     def test_disjoint_chunks_are_all_kept(self):
-        sem = _mk_result("q", "semantic", [
-            _mk_ev("chunk_001_001", 0.9),
-            _mk_ev("chunk_002_001", 0.7),
-        ])
-        kag = _mk_result("q", "structural", [
-            _mk_ev("chunk_003_001", 0.85, "structural"),
-            _mk_ev("chunk_004_001", 0.75, "structural"),
-        ])
+        sem = _mk_result(
+            "q",
+            "semantic",
+            [
+                _mk_ev("chunk_001_001", 0.9),
+                _mk_ev("chunk_002_001", 0.7),
+            ],
+        )
+        kag = _mk_result(
+            "q",
+            "structural",
+            [
+                _mk_ev("chunk_003_001", 0.85, "structural"),
+                _mk_ev("chunk_004_001", 0.75, "structural"),
+            ],
+        )
         result = EvidenceFusion().fuse(sem, kag, top_k=10)
         chunk_ids = {ev.chunk_id for ev in result.evidence}
         assert chunk_ids == {"chunk_001_001", "chunk_002_001", "chunk_003_001", "chunk_004_001"}
@@ -112,19 +127,28 @@ class TestDeduplication:
 
     def test_dedup_rate_calculation(self):
         # 2 sem + 2 kag = 4 total; 1 overlap => 3 unique => dedup = 1 - 3/4 = 0.25
-        sem = _mk_result("q", "semantic", [
-            _mk_ev("chunk_001_001", 0.9),
-            _mk_ev("chunk_002_001", 0.7),
-        ])
-        kag = _mk_result("q", "structural", [
-            _mk_ev("chunk_002_001", 0.85, "structural"),
-            _mk_ev("chunk_003_001", 0.75, "structural"),
-        ])
+        sem = _mk_result(
+            "q",
+            "semantic",
+            [
+                _mk_ev("chunk_001_001", 0.9),
+                _mk_ev("chunk_002_001", 0.7),
+            ],
+        )
+        kag = _mk_result(
+            "q",
+            "structural",
+            [
+                _mk_ev("chunk_002_001", 0.85, "structural"),
+                _mk_ev("chunk_003_001", 0.75, "structural"),
+            ],
+        )
         result = EvidenceFusion().fuse(sem, kag, top_k=10)
         assert result.metadata["dedup_rate"] == 0.25
 
 
 # ── Fusion scoring ─────────────────────────────────────────────
+
 
 class TestFusionScoring:
     def test_agreement_bonus_applied_when_both_sources_hit(self):
@@ -150,17 +174,25 @@ class TestFusionScoring:
         fusion = EvidenceFusion(semantic_weight=2.0, structural_weight=0.5, agreement_bonus=0.0)
         result = fusion.fuse(sem, kag, top_k=5)
         by_chunk = {ev.chunk_id: ev.score for ev in result.evidence}
-        assert by_chunk["chunk_001_001"] == pytest.approx(2.0)   # 2.0 * 1.0
-        assert by_chunk["chunk_002_001"] == pytest.approx(0.5)   # 0.5 * 1.0
+        assert by_chunk["chunk_001_001"] == pytest.approx(2.0)  # 2.0 * 1.0
+        assert by_chunk["chunk_002_001"] == pytest.approx(0.5)  # 0.5 * 1.0
 
     def test_metadata_captures_ranks_and_norm_scores(self):
-        sem = _mk_result("q", "semantic", [
-            _mk_ev("chunk_001_001", 0.9),
-            _mk_ev("chunk_002_001", 0.7),
-        ])
-        kag = _mk_result("q", "structural", [
-            _mk_ev("chunk_002_001", 0.85, "structural"),
-        ])
+        sem = _mk_result(
+            "q",
+            "semantic",
+            [
+                _mk_ev("chunk_001_001", 0.9),
+                _mk_ev("chunk_002_001", 0.7),
+            ],
+        )
+        kag = _mk_result(
+            "q",
+            "structural",
+            [
+                _mk_ev("chunk_002_001", 0.85, "structural"),
+            ],
+        )
         result = EvidenceFusion().fuse(sem, kag, top_k=5)
         by_chunk = {ev.chunk_id: ev for ev in result.evidence}
 
@@ -178,17 +210,26 @@ class TestFusionScoring:
 
 # ── Ranking & tie-breaking ─────────────────────────────────────
 
+
 class TestRanking:
     def test_higher_fusion_score_ranks_first(self):
         # chunk_A: both sources rank 1  => 1.0+1.0+0.5 = 2.5
         # chunk_B: sem rank 2, no kag   => 0.5+0+0 = 0.5
-        sem = _mk_result("q", "semantic", [
-            _mk_ev("chunk_A_001", 0.9),
-            _mk_ev("chunk_B_001", 0.7),
-        ])
-        kag = _mk_result("q", "structural", [
-            _mk_ev("chunk_A_001", 0.8, "structural"),
-        ])
+        sem = _mk_result(
+            "q",
+            "semantic",
+            [
+                _mk_ev("chunk_A_001", 0.9),
+                _mk_ev("chunk_B_001", 0.7),
+            ],
+        )
+        kag = _mk_result(
+            "q",
+            "structural",
+            [
+                _mk_ev("chunk_A_001", 0.8, "structural"),
+            ],
+        )
         result = EvidenceFusion().fuse(sem, kag, top_k=5)
         assert result.evidence[0].chunk_id == "chunk_A_001"
         assert result.evidence[1].chunk_id == "chunk_B_001"
@@ -213,14 +254,22 @@ class TestRanking:
         # Symmetric equality with agreement vs no-agreement is only achievable with
         # asymmetric weights. Verified in test_ranking_uses_agreement_when_scores_equal below.
         # Here we simply assert deterministic ordering for a natural agreement scenario:
-        sem = _mk_result("q", "semantic", [
-            _mk_ev("chunk_A_001", 0.9),
-            _mk_ev("chunk_B_001", 0.7),
-        ])
-        kag = _mk_result("q", "structural", [
-            _mk_ev("chunk_A_001", 0.8, "structural"),
-            _mk_ev("chunk_B_001", 0.6, "structural"),
-        ])
+        sem = _mk_result(
+            "q",
+            "semantic",
+            [
+                _mk_ev("chunk_A_001", 0.9),
+                _mk_ev("chunk_B_001", 0.7),
+            ],
+        )
+        kag = _mk_result(
+            "q",
+            "structural",
+            [
+                _mk_ev("chunk_A_001", 0.8, "structural"),
+                _mk_ev("chunk_B_001", 0.6, "structural"),
+            ],
+        )
         result = EvidenceFusion().fuse(sem, kag, top_k=5)
         # chunk_A: sem_r=1 (1.0) + kag_r=1 (1.0) + 0.5 = 2.5
         # chunk_B: sem_r=2 (0.5) + kag_r=2 (0.5) + 0.5 = 1.5
@@ -235,13 +284,21 @@ class TestRanking:
         # Not equal. To force equality, use:
         # chunk_AGREE: sem_r=2 of 2 (0.5)*1 + kag_r=* (weight 0) + 0.5 = 1.0
         # chunk_SOLO : sem_r=1 of 2 (1.0)*1 only = 1.0  → tied at 1.0, agreement should win.
-        sem = _mk_result("q", "semantic", [
-            _mk_ev("chunk_SOLO_001", 0.9),
-            _mk_ev("chunk_AGREE_001", 0.7),
-        ])
-        kag = _mk_result("q", "structural", [
-            _mk_ev("chunk_AGREE_001", 0.8, "structural"),
-        ])
+        sem = _mk_result(
+            "q",
+            "semantic",
+            [
+                _mk_ev("chunk_SOLO_001", 0.9),
+                _mk_ev("chunk_AGREE_001", 0.7),
+            ],
+        )
+        kag = _mk_result(
+            "q",
+            "structural",
+            [
+                _mk_ev("chunk_AGREE_001", 0.8, "structural"),
+            ],
+        )
         fusion = EvidenceFusion(semantic_weight=1.0, structural_weight=0.0, agreement_bonus=0.5)
         result = fusion.fuse(sem, kag, top_k=5)
         # Both score exactly 1.0; agreement should win tiebreak.
@@ -268,15 +325,23 @@ class TestRanking:
         assert result.metadata["fused_count"] == 2
 
     def test_deterministic_across_runs(self):
-        sem = _mk_result("q", "semantic", [
-            _mk_ev("chunk_001_001", 0.9),
-            _mk_ev("chunk_002_001", 0.7),
-            _mk_ev("chunk_003_001", 0.5),
-        ])
-        kag = _mk_result("q", "structural", [
-            _mk_ev("chunk_002_001", 0.85, "structural"),
-            _mk_ev("chunk_004_001", 0.75, "structural"),
-        ])
+        sem = _mk_result(
+            "q",
+            "semantic",
+            [
+                _mk_ev("chunk_001_001", 0.9),
+                _mk_ev("chunk_002_001", 0.7),
+                _mk_ev("chunk_003_001", 0.5),
+            ],
+        )
+        kag = _mk_result(
+            "q",
+            "structural",
+            [
+                _mk_ev("chunk_002_001", 0.85, "structural"),
+                _mk_ev("chunk_004_001", 0.75, "structural"),
+            ],
+        )
         fusion = EvidenceFusion()
         r1 = fusion.fuse(sem, kag, top_k=5)
         r2 = fusion.fuse(sem, kag, top_k=5)
@@ -286,10 +351,13 @@ class TestRanking:
 
 # ── Provenance preservation ────────────────────────────────────
 
+
 class TestProvenance:
     def test_structural_provenance_preserved_when_kag_only(self):
         kag_ev = _mk_ev(
-            "chunk_001_001", 0.8, "structural",
+            "chunk_001_001",
+            0.8,
+            "structural",
             provenance={"relation_id": "rel_001", "relation_type": "ACQUIRED"},
         )
         sem = _mk_result("q", "semantic", [])
@@ -299,10 +367,13 @@ class TestProvenance:
         assert result.evidence[0].provenance.get("relation_type") == "ACQUIRED"
 
     def test_semantic_provenance_preserved_under_metadata_when_agreement(self):
-        sem_ev = _mk_ev("chunk_001_001", 0.9, "semantic",
-                        provenance={"source_chunk": "chunk_001_001", "source_document": "doc_001"})
-        kag_ev = _mk_ev("chunk_001_001", 0.8, "structural",
-                        provenance={"relation_id": "rel_001"})
+        sem_ev = _mk_ev(
+            "chunk_001_001",
+            0.9,
+            "semantic",
+            provenance={"source_chunk": "chunk_001_001", "source_document": "doc_001"},
+        )
+        kag_ev = _mk_ev("chunk_001_001", 0.8, "structural", provenance={"relation_id": "rel_001"})
         sem = _mk_result("q", "semantic", [sem_ev])
         kag = _mk_result("q", "structural", [kag_ev])
         result = EvidenceFusion().fuse(sem, kag, top_k=5)
@@ -311,8 +382,12 @@ class TestProvenance:
         assert ev.metadata.get("semantic_provenance", {}).get("source_document") == "doc_001"
 
     def test_kag_path_metadata_preserved(self):
-        kag_ev = _mk_ev("chunk_001_001", 0.8, "structural",
-                        metadata={"path_formatted": "A --REL--> B", "path_hops": 1})
+        kag_ev = _mk_ev(
+            "chunk_001_001",
+            0.8,
+            "structural",
+            metadata={"path_formatted": "A --REL--> B", "path_hops": 1},
+        )
         sem = _mk_result("q", "semantic", [])
         kag = _mk_result("q", "structural", [kag_ev])
         result = EvidenceFusion().fuse(sem, kag, top_k=5)
@@ -321,6 +396,7 @@ class TestProvenance:
 
 
 # ── Edge cases ─────────────────────────────────────────────────
+
 
 class TestEdgeCases:
     def test_both_empty_returns_empty(self):

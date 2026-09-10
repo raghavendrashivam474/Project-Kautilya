@@ -1,4 +1,4 @@
-﻿"""Semantic retriever for Project Kautilya.
+"""Semantic retriever for Project Kautilya.
 
 Combines an EmbeddingProvider and a VectorIndex to retrieve
 textual evidence from the corpus for a given query.
@@ -47,9 +47,7 @@ class SemanticRetriever:
         vectors = self._embedding.embed_texts(texts)
         self._index.add(ids, vectors)
 
-    def retrieve(
-        self, query: str, top_k: int | None = None
-    ) -> RetrievalResult:
+    def retrieve(self, query: str, top_k: int | None = None) -> RetrievalResult:
         """Retrieve the most relevant evidence for a query."""
         k = top_k or self._top_k
         query_vector = self._embedding.embed_text(query)

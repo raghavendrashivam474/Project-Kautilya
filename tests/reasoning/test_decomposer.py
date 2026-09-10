@@ -1,4 +1,4 @@
-﻿"""Tests for the deterministic query decomposer across compositional patterns."""
+"""Tests for the deterministic query decomposer across compositional patterns."""
 
 from kautilya.contracts.reasoning import Direction
 from kautilya.reasoning.decomposer import QueryDecomposer
@@ -10,9 +10,7 @@ def _d() -> QueryDecomposer:
 
 # --- Pattern A ---
 def test_pattern_a_q22():
-    plan = _d().decompose(
-        "Who founded the company that acquired Vector Labs?"
-    )
+    plan = _d().decompose("Who founded the company that acquired Vector Labs?")
     assert plan is not None
     assert "Vector Labs" in plan.seed_entity_name
     assert plan.num_hops == 2
@@ -24,9 +22,7 @@ def test_pattern_a_q22():
 
 # --- Pattern B ---
 def test_pattern_b_q24():
-    plan = _d().decompose(
-        "Who co-founded the company that Nova Systems acquired?"
-    )
+    plan = _d().decompose("Who co-founded the company that Nova Systems acquired?")
     assert plan is not None
     assert "Nova Systems" in plan.seed_entity_name
     assert plan.num_hops == 2
@@ -38,9 +34,7 @@ def test_pattern_b_q24():
 
 # --- Pattern C ---
 def test_pattern_c_q21():
-    plan = _d().decompose(
-        "Who acquired the company that developed HelixDB?"
-    )
+    plan = _d().decompose("Who acquired the company that developed HelixDB?")
     assert plan is not None
     assert "HelixDB" in plan.seed_entity_name
     assert plan.num_hops == 2
@@ -52,9 +46,7 @@ def test_pattern_c_q21():
 
 # --- Pattern D ---
 def test_pattern_d_q23():
-    plan = _d().decompose(
-        "Which cloud provider works with the company that built HelixDB?"
-    )
+    plan = _d().decompose("Which cloud provider works with the company that built HelixDB?")
     assert plan is not None
     assert "HelixDB" in plan.seed_entity_name
     assert plan.num_hops == 2

@@ -1,4 +1,5 @@
-﻿"""Corpus loader — loads raw corpus from disk into typed objects."""
+"""Corpus loader — loads raw corpus from disk into typed objects."""
+
 from __future__ import annotations
 
 from pathlib import Path

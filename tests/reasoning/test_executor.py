@@ -1,4 +1,4 @@
-﻿"""Tests for the reasoning executor against the real knowledge graph."""
+"""Tests for the reasoning executor against the real knowledge graph."""
 
 from pathlib import Path
 
@@ -34,9 +34,7 @@ def executor(graph: KnowledgeGraph) -> ReasoningExecutor:
 # --- Q22: Pattern A ---
 def test_q22_full_chain(executor: ReasoningExecutor):
     """Vector Labs -> ACQUIRED(incoming) -> Nova Systems -> FOUNDED(incoming) -> Rohan Kapoor."""
-    plan = QueryDecomposer().decompose(
-        "Who founded the company that acquired Vector Labs?"
-    )
+    plan = QueryDecomposer().decompose("Who founded the company that acquired Vector Labs?")
     assert plan is not None
 
     trace = executor.execute(plan)
@@ -63,9 +61,7 @@ def test_q22_full_chain(executor: ReasoningExecutor):
 # --- Q24: Pattern B ---
 def test_q24_full_chain(executor: ReasoningExecutor):
     """Nova Systems -> ACQUIRED(outgoing) -> Vector Labs -> CO_FOUNDED(incoming) -> Mira Sharma / Anand Iyer."""
-    plan = QueryDecomposer().decompose(
-        "Who co-founded the company that Nova Systems acquired?"
-    )
+    plan = QueryDecomposer().decompose("Who co-founded the company that Nova Systems acquired?")
     assert plan is not None
 
     trace = executor.execute(plan)
@@ -88,9 +84,7 @@ def test_q24_full_chain(executor: ReasoningExecutor):
 # --- Q21: Pattern C ---
 def test_q21_full_chain(executor: ReasoningExecutor):
     """HelixDB -> DEVELOPED(incoming) -> Vector Labs -> ACQUIRED(incoming) -> Nova Systems."""
-    plan = QueryDecomposer().decompose(
-        "Who acquired the company that developed HelixDB?"
-    )
+    plan = QueryDecomposer().decompose("Who acquired the company that developed HelixDB?")
     assert plan is not None
 
     trace = executor.execute(plan)
@@ -120,9 +114,7 @@ def test_entity_resolution_failure(executor: ReasoningExecutor):
     plan = ReasoningPlan(
         query="test",
         seed_entity_name="NonexistentCorp",
-        steps=(
-            ReasoningStep("ACQUIRED", Direction.INCOMING, 1),
-        ),
+        steps=(ReasoningStep("ACQUIRED", Direction.INCOMING, 1),),
     )
     trace = executor.execute(plan)
     assert trace.status == ReasoningStatus.ENTITY_RESOLUTION_FAILURE
@@ -133,9 +125,7 @@ def test_relation_failure(executor: ReasoningExecutor):
     plan = ReasoningPlan(
         query="test",
         seed_entity_name="Vector Labs",
-        steps=(
-            ReasoningStep("MANUFACTURED_BY", Direction.INCOMING, 1),
-        ),
+        steps=(ReasoningStep("MANUFACTURED_BY", Direction.INCOMING, 1),),
     )
     trace = executor.execute(plan)
     assert trace.status == ReasoningStatus.RELATION_FAILURE
@@ -159,9 +149,7 @@ def test_max_hops_exceeded(graph: KnowledgeGraph):
 
 # --- Determinism ---
 def test_execution_is_deterministic(executor: ReasoningExecutor):
-    plan = QueryDecomposer().decompose(
-        "Who founded the company that acquired Vector Labs?"
-    )
+    plan = QueryDecomposer().decompose("Who founded the company that acquired Vector Labs?")
     assert plan is not None
     traces = [executor.execute(plan) for _ in range(10)]
     assert all(t == traces[0] for t in traces)

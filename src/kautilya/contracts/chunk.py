@@ -1,4 +1,5 @@
-﻿"""Chunk contract — a derived segment of a Document."""
+"""Chunk contract — a derived segment of a Document."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

@@ -1,4 +1,4 @@
-﻿"""Unit tests for S6 reasoning-aware evidence fusion.
+"""Unit tests for S6 reasoning-aware evidence fusion.
 
 Tests three-way fusion (semantic + structural + reasoning), safe degradation
 when reasoning fails or is empty, agreement bonus logic across 3 sources,
@@ -67,8 +67,20 @@ class TestThreeWayFusion:
             query=query,
             retrieval_method="structural",
             evidence=[
-                _make_evidence("chunk_005_001", 0.833, method="structural", origin="entity/relation", doc_id="doc_005"),
-                _make_evidence("chunk_002_001", 0.833, method="structural", origin="entity/relation", doc_id="doc_002"),
+                _make_evidence(
+                    "chunk_005_001",
+                    0.833,
+                    method="structural",
+                    origin="entity/relation",
+                    doc_id="doc_005",
+                ),
+                _make_evidence(
+                    "chunk_002_001",
+                    0.833,
+                    method="structural",
+                    origin="entity/relation",
+                    doc_id="doc_002",
+                ),
             ],
         )
 
@@ -157,7 +169,11 @@ class TestThreeWayFusion:
         by_chunk = {ev.chunk_id: ev for ev in fused.evidence}
         ev_001 = by_chunk["chunk_001_001"]
 
-        assert "reasoning_hop" in ev_001.provenance or "reasoning_reasoning_hop" in ev_001.provenance or ev_001.provenance.get("reasoning_hop") == 2
+        assert (
+            "reasoning_hop" in ev_001.provenance
+            or "reasoning_reasoning_hop" in ev_001.provenance
+            or ev_001.provenance.get("reasoning_hop") == 2
+        )
 
 
 class TestReasoningSafeDegradation:

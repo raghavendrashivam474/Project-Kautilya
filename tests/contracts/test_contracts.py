@@ -1,4 +1,5 @@
-﻿"""Test corpus contract dataclasses."""
+"""Test corpus contract dataclasses."""
+
 from kautilya.contracts import Chunk, Document, Entity, Provenance, Relation
 
 

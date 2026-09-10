@@ -1,1 +1,1 @@
-﻿"""Kautilya S5 — Deterministic multi-hop reasoning layer."""
+"""Kautilya S5 — Deterministic multi-hop reasoning layer."""

@@ -1,4 +1,4 @@
-﻿"""Retrieval namespace for Project Kautilya."""
+"""Retrieval namespace for Project Kautilya."""
 
 from kautilya.retrieval.index import NumpyVectorIndex, VectorIndex
 from kautilya.retrieval.semantic import SemanticRetriever

@@ -1,4 +1,4 @@
-﻿"""Integration tests for the KAGRetriever."""
+"""Integration tests for the KAGRetriever."""
 
 from pathlib import Path
 

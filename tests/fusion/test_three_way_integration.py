@@ -1,4 +1,4 @@
-﻿"""Integration tests for S6 reasoning-aware fusion against the real corpus."""
+"""Integration tests for S6 reasoning-aware fusion against the real corpus."""
 
 from __future__ import annotations
 

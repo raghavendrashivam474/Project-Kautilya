@@ -111,14 +111,14 @@ The fused `Evidence` items carry:
 ```python
 metadata = {
     "fusion_sources": ["semantic", "structural"],  # which methods found this chunk
-    "semantic_rank": 2,          # 1-indexed; None if not found by semantic
-    "structural_rank": 1,        # None if not found by structural
-    "semantic_score": 0.7074,    # raw score; None if not found
+    "semantic_rank": 2,  # 1-indexed; None if not found by semantic
+    "structural_rank": 1,  # None if not found by structural
+    "semantic_score": 0.7074,  # raw score; None if not found
     "structural_score": 0.8333,  # raw score; None if not found
     "semantic_norm_score": 0.8,  # rank-normalized
     "structural_norm_score": 1.0,
-    "fusion_score": 2.3,         # final combined score
-    "agreement": True,           # found by ≥2 methods
+    "fusion_score": 2.3,  # final combined score
+    "agreement": True,  # found by ≥2 methods
     # KAG-specific fields preserved when present:
     "path_formatted": "Vector Labs <--ACQUIRED-- Nova Systems",
     "path_hops": 1,

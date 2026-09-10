@@ -1,4 +1,4 @@
-﻿"""Tests for the structural knowledge graph index."""
+"""Tests for the structural knowledge graph index."""
 
 from pathlib import Path
 

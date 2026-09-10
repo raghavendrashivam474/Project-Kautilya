@@ -1,1 +1,1 @@
-﻿"""S5 reasoning tests."""
+"""S5 reasoning tests."""

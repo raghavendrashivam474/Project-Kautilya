@@ -1,4 +1,4 @@
-﻿"""Integration tests for the semantic retriever.
+"""Integration tests for the semantic retriever.
 
 These tests use a real (small) embedding model and the S1 corpus.
 They verify the end-to-end retrieval pipeline.

@@ -1,4 +1,4 @@
-﻿"""Tests for the evidence adapter — trace to RetrievalResult."""
+"""Tests for the evidence adapter — trace to RetrievalResult."""
 
 from pathlib import Path
 
@@ -28,9 +28,7 @@ def graph() -> KnowledgeGraph:
 
 def test_q22_end_to_end(graph: KnowledgeGraph):
     """Decompose -> Execute -> Adapt -> RetrievalResult with chunks."""
-    plan = QueryDecomposer().decompose(
-        "Who founded the company that acquired Vector Labs?"
-    )
+    plan = QueryDecomposer().decompose("Who founded the company that acquired Vector Labs?")
     assert plan is not None
 
     trace = ReasoningExecutor(graph).execute(plan)

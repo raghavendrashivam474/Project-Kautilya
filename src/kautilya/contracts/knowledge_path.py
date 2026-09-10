@@ -1,4 +1,4 @@
-﻿"""KnowledgePath contract — represents a structural path in the knowledge graph."""
+"""KnowledgePath contract — represents a structural path in the knowledge graph."""
 
 from __future__ import annotations
 

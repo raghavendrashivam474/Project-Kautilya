@@ -1,4 +1,5 @@
-﻿"""Test the actual S1 corpus loads, validates, and is internally consistent."""
+"""Test the actual S1 corpus loads, validates, and is internally consistent."""
+
 import pytest
 
 from kautilya.contracts import Chunk, Document, Entity, Provenance, Relation
@@ -64,7 +65,10 @@ def test_validation_detects_broken_reference():
         provenance=Provenance(document_id="doc_x", chunk_id="chunk_x_001"),
     )
     bad = Corpus(
-        documents=(doc,), chunks=(chunk,), entities=(e1,), relations=(rel,),
+        documents=(doc,),
+        chunks=(chunk,),
+        entities=(e1,),
+        relations=(rel,),
     )
     with pytest.raises(CorpusValidationError):
         validate_corpus(bad)

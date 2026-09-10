@@ -1,4 +1,4 @@
-﻿"""Unit tests for retrieval contracts."""
+"""Unit tests for retrieval contracts."""
 
 from dataclasses import FrozenInstanceError
 

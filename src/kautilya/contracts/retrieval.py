@@ -1,4 +1,4 @@
-﻿"""Contracts for retrieval results and evidence units in Project Kautilya."""
+"""Contracts for retrieval results and evidence units in Project Kautilya."""
 
 from __future__ import annotations
 
