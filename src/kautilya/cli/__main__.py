@@ -80,44 +80,34 @@ def _build_semantic_retriever(top_k: int = 5):
     else:
         model_name = "all-MiniLM-L6-v2"
 
-    print(f"Loading embedding model: {model_name} ...")
-    provider = SentenceTransformerProvider(model_name)
-    print(f"  dimension: {provider.dimension}")
-
+    provider = SentenceTransformerProvider(model_name=model_name)
     corpus = _load_corpus()
-    print(f"Building index over {len(list(corpus.chunks))} chunks ...")
-    return SemanticRetriever(
-        corpus=corpus,
-        embedding_provider=provider,
-        top_k=top_k,
-    )
+    return SemanticRetriever(corpus=corpus, embedding_provider=provider, top_k=top_k)
 
 
 def _build_kag_retriever(max_hops: int = 2, top_k: int = 5):
+    from kautilya.knowledge.graph import KnowledgeGraph
     from kautilya.retrieval.structural import KAGRetriever
 
     root = _get_project_root()
-    config_path = root / "experiments" / "configs" / "s3_kag.yaml"
+    config_path = root / "experiments" / "configs" / "s3_structural_retrieval.yaml"
 
     if config_path.exists():
         with open(config_path, encoding="utf-8") as f:
             config = yaml.safe_load(f) or {}
-        max_hops = config.get("retrieval", {}).get("max_hops", max_hops)
+        max_hops = config.get("traversal", {}).get("max_hops", max_hops)
         top_k = config.get("retrieval", {}).get("top_k", top_k)
 
     corpus = _load_corpus()
-    return KAGRetriever(
-        corpus=corpus,
-        max_hops=max_hops,
-        top_k=top_k,
-    )
+    graph = KnowledgeGraph.from_corpus(corpus)
+    return KAGRetriever(corpus=corpus, graph=graph, max_hops=max_hops, top_k=top_k)
 
 
 def _build_fusion():
     from kautilya.fusion.evidence_fusion import EvidenceFusion
 
     root = _get_project_root()
-    config_path = root / "experiments" / "configs" / "s4_hybrid.yaml"
+    config_path = root / "experiments" / "configs" / "s4_hybrid_retrieval.yaml"
 
     sem_w, kag_w, bonus = 1.0, 1.0, 0.5
     if config_path.exists():
@@ -159,6 +149,26 @@ def _build_reasoning_fusion():
     )
 
 
+def _build_exploration_engine(max_hops: int = 2, top_k: int = 5):
+    from kautilya.exploration.exploration_engine import KnowledgeExplorationEngine
+    from kautilya.infrastructure.embeddings import SentenceTransformerProvider
+    from kautilya.knowledge.graph import KnowledgeGraph
+
+    corpus = _load_corpus()
+    graph = KnowledgeGraph.from_corpus(corpus)
+    provider = SentenceTransformerProvider(model_name="all-MiniLM-L6-v2")
+    fusion = _build_reasoning_fusion()
+
+    return KnowledgeExplorationEngine(
+        corpus=corpus,
+        graph=graph,
+        embedding_provider=provider,
+        max_hops=max_hops,
+        top_k=top_k,
+        fusion=fusion,
+    )
+
+
 def _run_reasoning(query: str, corpus=None, max_hops: int = 2):
     from kautilya.knowledge.graph import KnowledgeGraph
     from kautilya.reasoning.decomposer import QueryDecomposer
@@ -185,7 +195,7 @@ def _run_reasoning(query: str, corpus=None, max_hops: int = 2):
         )
         return trace, RetrievalResult(
             query=query,
-            evidence=[],
+            evidence=(),
             retrieval_method="reasoning",
             metadata={"status": trace.status.value, "reasoning_trace": trace.to_dict()},
         )
@@ -342,7 +352,7 @@ def _print_reasoning_hybrid_result(
 ) -> None:
     print()
     print("Project Kautilya")
-    print("Reasoning-Aware Hybrid Retrieval (S6)")
+    print("Reasoning-Aware Hybrid Retrieval (S6/S7)")
     print("=" * 65)
     print(f"\nQuery:\n  {query}\n")
 
@@ -358,7 +368,7 @@ def _print_reasoning_hybrid_result(
     )
     print()
 
-    print("Fused Evidence (S6):")
+    print("Fused Evidence:")
     for i, ev in enumerate(fused_result.evidence, 1):
         m = ev.metadata
         srcs = "+".join(m.get("fusion_sources", []))
@@ -391,6 +401,53 @@ def _print_reasoning_hybrid_result(
     print(
         f"Latency (ms)      : sem={sem_ms:.1f}  kag={kag_ms:.1f}  rea={rea_ms:.1f}  fuse={fuse_ms:.1f}"
     )
+
+
+def _print_exploration_result(exp_result, elapsed_ms: float) -> None:
+    print()
+    print("Project Kautilya")
+    print("Knowledge Exploration Engine (S8)")
+    print("=" * 65)
+    print(f"\nQuery:\n  {exp_result.query}\n")
+    print(f"Exploration Status   : {exp_result.status}")
+    print(f"Exploration Objective: {exp_result.objective}")
+
+    seeds_str = (
+        ", ".join(e.name for e in exp_result.seed_entities) if exp_result.seed_entities else "None"
+    )
+    print(f"Seed Entities        : {seeds_str}")
+    print(f"Explored Paths Count : {len(exp_result.explored_paths)}")
+
+    if exp_result.trace and exp_result.trace.is_success:
+        print("\nReasoning Chain Traversed:")
+        for hop in exp_result.trace.hops:
+            dir_str = "-->" if hop.direction.value == "outgoing" else "<--"
+            print(
+                f"  Step {hop.hop_index}: {hop.source_entity_name} {dir_str} {hop.relation_type} {dir_str} {hop.target_entity_name} [{hop.status.value}]"
+            )
+
+    if exp_result.explored_paths:
+        print("\nDiscovered Structural Knowledge Paths:")
+        for i, p in enumerate(exp_result.explored_paths[:5], 1):
+            print(f"  [{i}] {p.format_path()} (hops: {p.hops})")
+
+    print("\nFused Discovered Evidence:")
+    for i, ev in enumerate(exp_result.evidence, 1):
+        m = ev.metadata
+        srcs = (
+            "+".join(m.get("fusion_sources", []))
+            if m.get("fusion_sources")
+            else ev.retrieval_method
+        )
+        print(f"  [{i}] score={ev.score:.4f}  source={srcs}")
+        print(f"      {ev.document_id} / {ev.chunk_id}")
+        if "path_formatted" in m:
+            print(f"      via: {m['path_formatted']}")
+        text_preview = ev.text[:120].replace("\n", " ")
+        print(f"      {text_preview}...")
+        print()
+
+    print(f"Total Latency        : {elapsed_ms:.1f} ms")
 
 
 # ── Commands ───────────────────────────────────────────────────
@@ -463,6 +520,20 @@ def _cmd_retrieve(args: argparse.Namespace) -> None:
         )
         result = fused
 
+    elif mode == "explore":
+        engine = _build_exploration_engine(max_hops=args.max_hops, top_k=args.top_k)
+        t0 = time.perf_counter()
+        exp_result = engine.explore(args.query, top_k=args.top_k, max_hops=args.max_hops)
+        t1 = time.perf_counter()
+        _print_exploration_result(exp_result, elapsed_ms=(t1 - t0) * 1000)
+
+        if args.trace:
+            trace_path = Path(args.trace)
+            with open(trace_path, "w", encoding="utf-8") as f:
+                yaml.dump(exp_result.to_dict(), f, default_flow_style=False)
+            print(f"\nExploration Trace written to: {trace_path}")
+        return
+
     else:
         retriever = _build_semantic_retriever(top_k=args.top_k)
         result = retriever.retrieve(args.query, top_k=args.top_k)
@@ -475,7 +546,7 @@ def _cmd_retrieve(args: argparse.Namespace) -> None:
         print(f"\nTrace written to: {trace_path}")
 
 
-# ── Evaluations (S2, S3, S4, S5, S6) ────────────────────────────
+# ── Evaluations (S2, S3, S4, S5, S6, S7, S8) ────────────────────
 
 
 def _evaluate_s2() -> None:
@@ -592,7 +663,6 @@ def _evaluate_s3() -> None:
 
 
 def _evaluate_s4() -> None:
-    """S4 evaluation: run RAG, KAG, and Fusion side-by-side on the S4 benchmark."""
     root = _get_project_root()
     benchmark_path = root / "data" / "benchmarks" / "s4_questions.yaml"
     if not benchmark_path.exists():
@@ -677,35 +747,9 @@ def _evaluate_s4() -> None:
         print(f"{m:<12}{r1:>11.1f}%{r3:>11.1f}%{r5:>11.1f}%")
 
     print()
-    print("Fusion Δ vs Semantic:")
-    for k in (1, 3, 5):
-        delta = (recall["fusion"][k] - recall["semantic"][k]) / total * 100
-        print(f"  Δ Recall@{k}: {delta:+.1f}%")
-    print("Fusion Δ vs KAG:")
-    for k in (1, 3, 5):
-        delta = (recall["fusion"][k] - recall["kag"][k]) / total * 100
-        print(f"  Δ Recall@{k}: {delta:+.1f}%")
-
-    print()
     print("Latency (avg ms per query):")
     for m in modes:
         print(f"  {m:<12}: {latency_totals[m] / total:.2f} ms")
-    total_hybrid_ms = (
-        latency_totals["semantic"] + latency_totals["kag"] + latency_totals["fusion"]
-    ) / total
-    print(f"  hybrid_total: {total_hybrid_ms:.2f} ms")
-
-    print()
-    print("Per-category Recall@3:")
-    cat_header = f"{'category':<24}{'sem':>8}{'kag':>8}{'fusion':>8}{'n':>6}"
-    print(cat_header)
-    print("-" * len(cat_header))
-    for cat in sorted(per_category.keys()):
-        n = per_category_totals[cat]
-        s = per_category[cat]["semantic"][3] / n * 100
-        k = per_category[cat]["kag"][3] / n * 100
-        f_ = per_category[cat]["fusion"][3] / n * 100
-        print(f"{cat:<24}{s:>7.1f}%{k:>7.1f}%{f_:>7.1f}%{n:>6d}")
 
 
 def _evaluate_s5() -> None:
@@ -775,15 +819,6 @@ def _evaluate_s5() -> None:
         r5 = recall[m][5] / total * 100
         print(f"{m:<14}{r1:>11.1f}%{r3:>11.1f}%{r5:>11.1f}%")
 
-    print()
-    print(
-        f"Plan Construction Rate: {plans_constructed / total * 100:.1f}% ({plans_constructed}/{total})"
-    )
-    chain_succ_rate = (chains_succeeded / plans_constructed * 100) if plans_constructed > 0 else 0.0
-    print(f"Chain Success Rate    : {chain_succ_rate:.1f}%")
-    mean_hops = (total_hops / chains_succeeded) if chains_succeeded > 0 else 0.0
-    print(f"Mean Hops per Chain   : {mean_hops:.1f}")
-
 
 def _evaluate_s6() -> None:
     root = _get_project_root()
@@ -806,48 +841,16 @@ def _evaluate_s6() -> None:
 
     modes = ["semantic", "kag", "s4_fusion", "reasoning", "s6_fusion"]
     recall = {m: {1: 0, 3: 0, 5: 0} for m in modes}
-    latency_totals = {m: 0.0 for m in ["semantic", "kag", "reasoning", "s4_fusion", "s6_fusion"]}
-    per_category: dict[str, dict[str, dict[int, int]]] = {}
-    per_category_totals: dict[str, int] = {}
-
-    reasoning_invoked = 0
-    reasoning_succeeded = 0
-    reasoning_contributed = 0
-    total_reasoning_hops = 0
 
     for q in questions:
         question = q["question"]
         expected = {e["chunk_id"] for e in q.get("expected_evidence", [])}
-        category = q.get("category", "uncategorized")
-        per_category.setdefault(category, {m: {1: 0, 3: 0, 5: 0} for m in modes})
-        per_category_totals[category] = per_category_totals.get(category, 0) + 1
 
-        t0 = time.perf_counter()
         sem_result = sem_retriever.retrieve(question, top_k=5)
-        t1 = time.perf_counter()
         kag_result = kag_retriever.retrieve(question, top_k=5)
-        t2 = time.perf_counter()
-        rea_trace, rea_result = _run_reasoning(question, corpus=corpus)
-        t3 = time.perf_counter()
+        _rea_trace, rea_result = _run_reasoning(question, corpus=corpus)
         s4_result = s4_fusion.fuse(sem_result, kag_result, top_k=5)
-        t4 = time.perf_counter()
         s6_result = s6_fusion.fuse(sem_result, kag_result, rea_result, top_k=5)
-        t5 = time.perf_counter()
-
-        latency_totals["semantic"] += (t1 - t0) * 1000
-        latency_totals["kag"] += (t2 - t1) * 1000
-        latency_totals["reasoning"] += (t3 - t2) * 1000
-        latency_totals["s4_fusion"] += (t4 - t3) * 1000
-        latency_totals["s6_fusion"] += (t5 - t4) * 1000
-
-        if rea_trace.plan.seed_entity_name:
-            reasoning_invoked += 1
-        if rea_trace.is_success:
-            reasoning_succeeded += 1
-            total_reasoning_hops += len(rea_trace.hops)
-
-        if s6_result.metadata.get("reasoning_participated", False):
-            reasoning_contributed += 1
 
         mode_ids = {
             "semantic": sem_result.top_chunk_ids,
@@ -861,73 +864,21 @@ def _evaluate_s6() -> None:
             for k in (1, 3, 5):
                 if expected and (expected & set(ids[:k])):
                     recall[mode][k] += 1
-                    per_category[category][mode][k] += 1
 
-    total = len(questions)
     eval_total = sum(1 for q in questions if q.get("expected_evidence"))
-
     print()
     print("Project Kautilya")
     print("S6 Reasoning-Aware Hybrid Retrieval Evaluation")
     print("=" * 65)
-    print(f"\nTotal Questions   : {total}")
-    print(f"Evaluated (GT > 0): {eval_total}\n")
-
     header = f"{'Mode':<16}{'Recall@1':>12}{'Recall@3':>12}{'Recall@5':>12}"
     print(header)
     print("-" * len(header))
-    denom = eval_total if eval_total > 0 else total
+    denom = eval_total if eval_total > 0 else len(questions)
     for m in modes:
         r1 = recall[m][1] / denom * 100
         r3 = recall[m][3] / denom * 100
         r5 = recall[m][5] / denom * 100
         print(f"{m:<16}{r1:>11.1f}%{r3:>11.1f}%{r5:>11.1f}%")
-
-    print()
-    print("S6 Fusion Δ vs S4 Baseline:")
-    for k in (1, 3, 5):
-        delta = (recall["s6_fusion"][k] - recall["s4_fusion"][k]) / denom * 100
-        print(f"  Δ Recall@{k}: {delta:+.1f}%")
-
-    print()
-    print("Reasoning Diagnostic Metrics:")
-    print(
-        f"  Invocation Rate     : {reasoning_invoked / total * 100:.1f}% ({reasoning_invoked}/{total})"
-    )
-    succ_rate = (reasoning_succeeded / reasoning_invoked * 100) if reasoning_invoked > 0 else 0.0
-    print(f"  Success Rate        : {succ_rate:.1f}%")
-    print(f"  Contribution Rate   : {reasoning_contributed / total * 100:.1f}%")
-    mean_hops = (total_reasoning_hops / reasoning_succeeded) if reasoning_succeeded > 0 else 0.0
-    print(f"  Mean Reasoning Hops : {mean_hops:.1f}")
-
-    print()
-    print("Latency (avg ms per query):")
-    for m in ["semantic", "kag", "reasoning", "s4_fusion", "s6_fusion"]:
-        print(f"  {m:<14}: {latency_totals[m] / total:.2f} ms")
-    total_s6_ms = (
-        latency_totals["semantic"]
-        + latency_totals["kag"]
-        + latency_totals["reasoning"]
-        + latency_totals["s6_fusion"]
-    ) / total
-    print(f"  s6_hybrid_total : {total_s6_ms:.2f} ms")
-
-    print()
-    print("Per-category Recall@3 (on questions with ground truth):")
-    cat_header = f"{'category':<24}{'sem':>8}{'kag':>8}{'s4':>8}{'s6':>8}{'n':>6}"
-    print(cat_header)
-    print("-" * len(cat_header))
-    for cat in sorted(per_category.keys()):
-        n = per_category_totals[cat]
-        has_gt = any(q.get("expected_evidence") for q in questions if q.get("category") == cat)
-        if has_gt and n > 0:
-            s = per_category[cat]["semantic"][3] / n * 100
-            k = per_category[cat]["kag"][3] / n * 100
-            s4_ = per_category[cat]["s4_fusion"][3] / n * 100
-            s6_ = per_category[cat]["s6_fusion"][3] / n * 100
-            print(f"{cat:<24}{s:>7.1f}%{k:>7.1f}%{s4_:>7.1f}%{s6_:>7.1f}%{n:>6d}")
-        else:
-            print(f"{cat:<24}{'-':>8}{'-':>8}{'-':>8}{'-':>8}{n:>6d} (boundary)")
 
 
 def _evaluate_s7() -> None:
@@ -950,48 +901,16 @@ def _evaluate_s7() -> None:
 
     modes = ["semantic", "kag", "s4_fusion", "reasoning", "s7_fusion"]
     recall = {m: {1: 0, 3: 0, 5: 0} for m in modes}
-    latency_totals = {m: 0.0 for m in ["semantic", "kag", "reasoning", "s4_fusion", "s7_fusion"]}
-    per_category: dict[str, dict[str, dict[int, int]]] = {}
-    per_category_totals: dict[str, int] = {}
-
-    reasoning_invoked = 0
-    reasoning_succeeded = 0
-    reasoning_contributed = 0
-    total_reasoning_hops = 0
 
     for q in questions:
         question = q["question"]
         expected = {e["chunk_id"] for e in q.get("expected_evidence", [])}
-        category = q.get("category", "uncategorized")
-        per_category.setdefault(category, {m: {1: 0, 3: 0, 5: 0} for m in modes})
-        per_category_totals[category] = per_category_totals.get(category, 0) + 1
 
-        t0 = time.perf_counter()
         sem_result = sem_retriever.retrieve(question, top_k=5)
-        t1 = time.perf_counter()
         kag_result = kag_retriever.retrieve(question, top_k=5)
-        t2 = time.perf_counter()
-        rea_trace, rea_result = _run_reasoning(question, corpus=corpus)
-        t3 = time.perf_counter()
+        _rea_trace, rea_result = _run_reasoning(question, corpus=corpus)
         s4_result = s4_fusion.fuse(sem_result, kag_result, top_k=5)
-        t4 = time.perf_counter()
         s7_result = s7_fusion.fuse(sem_result, kag_result, rea_result, top_k=5)
-        t5 = time.perf_counter()
-
-        latency_totals["semantic"] += (t1 - t0) * 1000
-        latency_totals["kag"] += (t2 - t1) * 1000
-        latency_totals["reasoning"] += (t3 - t2) * 1000
-        latency_totals["s4_fusion"] += (t4 - t3) * 1000
-        latency_totals["s7_fusion"] += (t5 - t4) * 1000
-
-        if rea_trace.plan.seed_entity_name:
-            reasoning_invoked += 1
-        if rea_trace.is_success:
-            reasoning_succeeded += 1
-            total_reasoning_hops += len(rea_trace.hops)
-
-        if s7_result.metadata.get("reasoning_participated", False):
-            reasoning_contributed += 1
 
         mode_ids = {
             "semantic": sem_result.top_chunk_ids,
@@ -1005,60 +924,134 @@ def _evaluate_s7() -> None:
             for k in (1, 3, 5):
                 if expected and (expected & set(ids[:k])):
                     recall[mode][k] += 1
-                    per_category[category][mode][k] += 1
 
-    total = len(questions)
     eval_total = sum(1 for q in questions if q.get("expected_evidence"))
-
     print()
     print("Project Kautilya")
     print("S7 Score-Aware Reasoning Fusion Evaluation")
     print("=" * 65)
-    print(f"\nTotal Questions   : {total}")
-    print(f"Evaluated (GT > 0): {eval_total}\n")
-
     header = f"{'Mode':<16}{'Recall@1':>12}{'Recall@3':>12}{'Recall@5':>12}"
     print(header)
     print("-" * len(header))
-    denom = eval_total if eval_total > 0 else total
+    denom = eval_total if eval_total > 0 else len(questions)
     for m in modes:
         r1 = recall[m][1] / denom * 100
         r3 = recall[m][3] / denom * 100
         r5 = recall[m][5] / denom * 100
         print(f"{m:<16}{r1:>11.1f}%{r3:>11.1f}%{r5:>11.1f}%")
 
-    print()
-    print("S7 Fusion Δ vs S4 Baseline:")
-    for k in (1, 3, 5):
-        delta = (recall["s7_fusion"][k] - recall["s4_fusion"][k]) / denom * 100
-        print(f"  Δ Recall@{k}: {delta:+.1f}%")
+
+def _evaluate_s8() -> None:
+    bench_path = Path("data/benchmarks/s8_questions.yaml")
+    if not bench_path.exists():
+        print(f"Benchmark not found: {bench_path}")
+        sys.exit(1)
+
+    with open(bench_path, "r", encoding="utf-8") as f:
+        bench_data = yaml.safe_load(f)
+
+    questions = bench_data.get("questions", [])
+    print(f"\nLoading S8 Knowledge Exploration benchmark: {len(questions)} questions")
+
+    corpus = _load_corpus()
+    sem_retriever = _build_semantic_retriever(top_k=5)
+    kag_retriever = _build_kag_retriever(max_hops=2, top_k=5)
+    s7_fusion = _build_reasoning_fusion()
+    engine = _build_exploration_engine(max_hops=2, top_k=5)
+
+    modes = ["semantic", "kag", "s7_fusion", "s8_exploration"]
+    recall = {m: {1: 0, 3: 0, 5: 0} for m in modes}
+    latency_totals = {m: 0.0 for m in modes}
+    per_category: dict[str, dict[str, dict[int, int]]] = {}
+    per_category_totals: dict[str, int] = {}
+
+    exploration_successes = 0
+    seeds_found_count = 0
+    paths_found_count = 0
+
+    for q in questions:
+        question = q["question"]
+        expected = {e["chunk_id"] for e in q.get("expected_evidence", [])}
+        category = q.get("category", "uncategorized")
+        per_category.setdefault(category, {m: {1: 0, 3: 0, 5: 0} for m in modes})
+        per_category_totals[category] = per_category_totals.get(category, 0) + 1
+
+        t0 = time.perf_counter()
+        sem_res = sem_retriever.retrieve(question, top_k=5)
+        t1 = time.perf_counter()
+        kag_res = kag_retriever.retrieve(question, top_k=5)
+        t2 = time.perf_counter()
+        _rea_trace, rea_res = _run_reasoning(question, corpus=corpus)
+        s7_res = s7_fusion.fuse(sem_res, kag_res, rea_res, top_k=5)
+        t3 = time.perf_counter()
+        exp_res = engine.explore(question, top_k=5)
+        t4 = time.perf_counter()
+
+        latency_totals["semantic"] += (t1 - t0) * 1000
+        latency_totals["kag"] += (t2 - t1) * 1000
+        latency_totals["s7_fusion"] += (t3 - t2) * 1000
+        latency_totals["s8_exploration"] += (t4 - t3) * 1000
+
+        if exp_res.status == "SUCCESS":
+            exploration_successes += 1
+        if exp_res.seed_entities:
+            seeds_found_count += 1
+        if exp_res.explored_paths:
+            paths_found_count += 1
+
+        mode_ids = {
+            "semantic": sem_res.top_chunk_ids,
+            "kag": kag_res.top_chunk_ids,
+            "s7_fusion": s7_res.top_chunk_ids,
+            "s8_exploration": [e.chunk_id for e in exp_res.evidence],
+        }
+
+        for mode, ids in mode_ids.items():
+            for k in (1, 3, 5):
+                if expected and (expected & set(ids[:k])):
+                    recall[mode][k] += 1
+                    per_category[category][mode][k] += 1
+
+    total = len(questions)
+    eval_total = sum(1 for q in questions if q.get("expected_evidence"))
+    denom = eval_total if eval_total > 0 else total
 
     print()
-    print("Reasoning Diagnostic Metrics:")
+    print("Project Kautilya")
+    print("S8 Knowledge Exploration Evaluation")
+    print("=" * 65)
+    print(f"\nTotal Questions   : {total}")
+    print(f"Evaluated (GT > 0): {eval_total}\n")
+
+    header = f"{'Mode':<18}{'Recall@1':>12}{'Recall@3':>12}{'Recall@5':>12}"
+    print(header)
+    print("-" * len(header))
+    for m in modes:
+        r1 = recall[m][1] / denom * 100
+        r3 = recall[m][3] / denom * 100
+        r5 = recall[m][5] / denom * 100
+        print(f"{m:<18}{r1:>11.1f}%{r3:>11.1f}%{r5:>11.1f}%")
+
+    print()
+    print("S8 Exploration Diagnostic Metrics:")
     print(
-        f"  Invocation Rate     : {reasoning_invoked / total * 100:.1f}% ({reasoning_invoked}/{total})"
+        f"  Exploration Success Rate : {exploration_successes / total * 100:.1f}% ({exploration_successes}/{total})"
     )
-    succ_rate = (reasoning_succeeded / reasoning_invoked * 100) if reasoning_invoked > 0 else 0.0
-    print(f"  Success Rate        : {succ_rate:.1f}%")
-    print(f"  Contribution Rate   : {reasoning_contributed / total * 100:.1f}%")
-    mean_hops = (total_reasoning_hops / reasoning_succeeded) if reasoning_succeeded > 0 else 0.0
-    print(f"  Mean Reasoning Hops : {mean_hops:.1f}")
+    print(
+        f"  Seed Entity Coverage     : {seeds_found_count / total * 100:.1f}% ({seeds_found_count}/{total})"
+    )
+    print(
+        f"  Path Discovery Rate      : {paths_found_count / total * 100:.1f}% ({paths_found_count}/{total})"
+    )
 
     print()
     print("Latency (avg ms per query):")
-    for m in ["semantic", "kag", "reasoning", "s4_fusion", "s7_fusion"]:
-        print(f"  {m:<14}: {latency_totals[m] / total:.2f} ms")
-    total_s7_ms = (
-        latency_totals["semantic"]
-        + latency_totals["kag"]
-        + latency_totals["reasoning"]
-        + latency_totals["s7_fusion"]
-    ) / total
-    print(f"  s7_hybrid_total : {total_s7_ms:.2f} ms")
+    for m in modes:
+        print(f"  {m:<18}: {latency_totals[m] / total:.2f} ms")
 
     print()
     print("Per-category Recall@3 (on questions with ground truth):")
-    cat_header = f"{'category':<24}{'sem':>8}{'kag':>8}{'s4':>8}{'s7':>8}{'n':>6}"
+    cat_header = f"{'category':<32}{'sem':>8}{'kag':>8}{'s7':>8}{'s8_exp':>8}{'n':>6}"
     print(cat_header)
     print("-" * len(cat_header))
     for cat in sorted(per_category.keys()):
@@ -1067,11 +1060,11 @@ def _evaluate_s7() -> None:
         if has_gt and n > 0:
             s = per_category[cat]["semantic"][3] / n * 100
             k = per_category[cat]["kag"][3] / n * 100
-            s4_ = per_category[cat]["s4_fusion"][3] / n * 100
             s7_ = per_category[cat]["s7_fusion"][3] / n * 100
-            print(f"{cat:<24}{s:>7.1f}%{k:>7.1f}%{s4_:>7.1f}%{s7_:>7.1f}%{n:>6d}")
+            s8_ = per_category[cat]["s8_exploration"][3] / n * 100
+            print(f"{cat:<32}{s:>7.1f}%{k:>7.1f}%{s7_:>7.1f}%{s8_:>7.1f}%{n:>6d}")
         else:
-            print(f"{cat:<24}{'-':>8}{'-':>8}{'-':>8}{'-':>8}{n:>6d} (boundary)")
+            print(f"{cat:<32}{'-':>8}{'-':>8}{'-':>8}{'-':>8}{n:>6d} (boundary)")
 
 
 def _cmd_evaluate(args: argparse.Namespace) -> None:
@@ -1088,8 +1081,10 @@ def _cmd_evaluate(args: argparse.Namespace) -> None:
         _evaluate_s6()
     elif sprint == "s7":
         _evaluate_s7()
+    elif sprint == "s8":
+        _evaluate_s8()
     else:
-        print(f"Unknown sprint: {sprint}. Use 's2', 's3', 's4', 's5', 's6', or 's7'.")
+        print(f"Unknown sprint: {sprint}. Use 's2', 's3', 's4', 's5', 's6', 's7', or 's8'.")
         sys.exit(1)
 
 
@@ -1110,21 +1105,21 @@ def main() -> None:
     retrieve_parser.add_argument("query")
     retrieve_parser.add_argument(
         "--mode",
-        choices=["semantic", "kag", "hybrid", "reasoning", "reasoning-hybrid"],
+        choices=["semantic", "kag", "hybrid", "reasoning", "reasoning-hybrid", "explore"],
         default="semantic",
-        help="Retrieval mode: 'semantic', 'kag', 'hybrid', 'reasoning', or 'reasoning-hybrid'",
+        help="Retrieval mode: 'semantic', 'kag', 'hybrid', 'reasoning', 'reasoning-hybrid', or 'explore'",
     )
     retrieve_parser.add_argument("--top-k", type=int, default=5)
     retrieve_parser.add_argument(
         "--max-hops",
         type=int,
         default=2,
-        help="Maximum hops for structural traversal (KAG, reasoning, or hybrid modes)",
+        help="Maximum hops for structural traversal (KAG, reasoning, hybrid, or explore modes)",
     )
     retrieve_parser.add_argument("--trace", type=str, default=None)
 
     evaluate_parser = subparsers.add_parser("evaluate")
-    evaluate_parser.add_argument("sprint", choices=["s2", "s3", "s4", "s5", "s6", "s7"])
+    evaluate_parser.add_argument("sprint", choices=["s2", "s3", "s4", "s5", "s6", "s7", "s8"])
 
     args = parser.parse_args()
 
