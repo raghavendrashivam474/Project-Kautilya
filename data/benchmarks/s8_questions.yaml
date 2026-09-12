@@ -1,0 +1,214 @@
+﻿benchmark_id: s8_exploration_benchmark
+description: "S8 Knowledge Exploration benchmark evaluating multi-source bounded exploration, path discovery, and evidence recall across the controlled Knowledge World."
+version: "1.0.0"
+questions:
+  # ── Category 1: exploration_requires_reasoning ──
+  - id: s8_q01
+    category: exploration_requires_reasoning
+    question: "Who founded the company that acquired Vector Labs?"
+    reasoning_type: multi_hop_chain
+    expected_seed_entities: ["Vector Labs"]
+    expected_paths:
+      - ["Vector Labs", "ACQUIRED", "Nova Systems", "FOUNDED", "Rohan Kapoor"]
+    expected_evidence:
+      - chunk_id: "chunk_001_001"
+      - chunk_id: "chunk_012_001"
+
+  - id: s8_q02
+    category: exploration_requires_reasoning
+    question: "Who co-founded the company that Nova Systems acquired?"
+    reasoning_type: multi_hop_chain
+    expected_seed_entities: ["Nova Systems"]
+    expected_paths:
+      - ["Nova Systems", "ACQUIRED", "Vector Labs", "CO_FOUNDED", "Mira Sharma"]
+      - ["Nova Systems", "ACQUIRED", "Vector Labs", "CO_FOUNDED", "Anand Iyer"]
+    expected_evidence:
+      - chunk_id: "chunk_002_001"
+      - chunk_id: "chunk_006_001"
+
+  - id: s8_q03
+    category: exploration_requires_reasoning
+    question: "Who acquired the company that developed HelixDB?"
+    reasoning_type: multi_hop_chain
+    expected_seed_entities: ["HelixDB"]
+    expected_paths:
+      - ["HelixDB", "DEVELOPED", "Vector Labs", "ACQUIRED", "Nova Systems"]
+    expected_evidence:
+      - chunk_id: "chunk_005_001"
+      - chunk_id: "chunk_001_001"
+
+  - id: s8_q04
+    category: exploration_requires_reasoning
+    question: "Which provider works with the company that built HelixDB?"
+    reasoning_type: multi_hop_chain
+    expected_seed_entities: ["HelixDB"]
+    expected_paths:
+      - ["HelixDB", "DEVELOPED", "Vector Labs", "PARTNERED_WITH", "Meridian Cloud"]
+    expected_evidence:
+      - chunk_id: "chunk_011_001"
+
+  # ── Category 2: exploration_branching (Hub Exploration) ──
+  - id: s8_q05
+    category: exploration_branching
+    question: "Explore all entities, acquisitions, and locations connected to Nova Systems."
+    reasoning_type: hub_expansion
+    expected_seed_entities: ["Nova Systems"]
+    expected_paths:
+      - ["Nova Systems", "HEADQUARTERED_IN", "Bengaluru"]
+      - ["Nova Systems", "ACQUIRED", "Vector Labs"]
+    expected_evidence:
+      - chunk_id: "chunk_001_001"
+      - chunk_id: "chunk_005_001"
+
+  - id: s8_q06
+    category: exploration_branching
+    question: "Explore all products, partnerships, founders, and locations connected to Vector Labs."
+    reasoning_type: hub_expansion
+    expected_seed_entities: ["Vector Labs"]
+    expected_paths:
+      - ["Vector Labs", "HEADQUARTERED_IN", "Pune"]
+      - ["Vector Labs", "DEVELOPED", "HelixDB"]
+    expected_evidence:
+      - chunk_id: "chunk_002_001"
+      - chunk_id: "chunk_005_001"
+      - chunk_id: "chunk_011_001"
+
+  - id: s8_q07
+    category: exploration_branching
+    question: "Explore the connections, products, and leadership of Nova AI Division."
+    reasoning_type: hub_expansion
+    expected_seed_entities: ["Nova AI Division"]
+    expected_paths:
+      - ["Nova AI Division", "HEADQUARTERED_IN", "Bengaluru"]
+      - ["Nova AI Division", "DEVELOPED", "Kaveri"]
+    expected_evidence:
+      - chunk_id: "chunk_008_001"
+      - chunk_id: "chunk_009_001"
+
+  # ── Category 3: exploration_single_region (Local Cluster) ──
+  - id: s8_q08
+    category: exploration_single_region
+    question: "What is the organization and location context for Orion Analytics?"
+    reasoning_type: single_region
+    expected_seed_entities: ["Orion Analytics"]
+    expected_paths:
+      - ["Orion Analytics", "HEADQUARTERED_IN", "Hyderabad"]
+      - ["Orion Analytics", "USES", "HelixDB"]
+    expected_evidence:
+      - chunk_id: "chunk_004_001"
+      - chunk_id: "chunk_007_001"
+
+  - id: s8_q09
+    category: exploration_single_region
+    question: "Explore the location and technology usage of Kaveri."
+    reasoning_type: single_region
+    expected_seed_entities: ["Kaveri"]
+    expected_paths:
+      - ["Kaveri", "USES", "HelixDB"]
+    expected_evidence:
+      - chunk_id: "chunk_009_001"
+
+  - id: s8_q10
+    category: exploration_single_region
+    question: "Explore the organization and headquarters of Meridian Cloud."
+    reasoning_type: single_region
+    expected_seed_entities: ["Meridian Cloud"]
+    expected_paths:
+      - ["Meridian Cloud", "HEADQUARTERED_IN", "Singapore"]
+      - ["Meridian Cloud", "PARTNERED_WITH", "Vector Labs"]
+    expected_evidence:
+      - chunk_id: "chunk_011_001"
+
+  # ── Category 4: exploration_multi_hop (Structural Traversal) ──
+  - id: s8_q11
+    category: exploration_multi_hop
+    question: "Explore the relationship path from Rohan Kapoor to Vector Labs."
+    reasoning_type: multi_hop_traversal
+    expected_seed_entities: ["Rohan Kapoor", "Vector Labs"]
+    expected_paths:
+      - ["Rohan Kapoor", "FOUNDED", "Nova Systems", "ACQUIRED", "Vector Labs"]
+    expected_evidence:
+      - chunk_id: "chunk_001_001"
+      - chunk_id: "chunk_005_001"
+
+  - id: s8_q12
+    category: exploration_multi_hop
+    question: "Explore the relationship path between Mira Sharma and HelixDB."
+    reasoning_type: multi_hop_traversal
+    expected_seed_entities: ["Mira Sharma", "HelixDB"]
+    expected_paths:
+      - ["Mira Sharma", "CO_FOUNDED", "Vector Labs", "DEVELOPED", "HelixDB"]
+    expected_evidence:
+      - chunk_id: "chunk_002_001"
+      - chunk_id: "chunk_008_001"
+
+  - id: s8_q13
+    category: exploration_multi_hop
+    question: "Explore the path connecting Arjun Mehta and HelixDB."
+    reasoning_type: multi_hop_traversal
+    expected_seed_entities: ["Arjun Mehta", "HelixDB"]
+    expected_paths:
+      - ["Arjun Mehta", "FOUNDED", "Orion Analytics", "USES", "HelixDB"]
+    expected_evidence:
+      - chunk_id: "chunk_004_001"
+      - chunk_id: "chunk_007_001"
+
+  - id: s8_q14
+    category: exploration_multi_hop
+    question: "Explore the connection between Anand Iyer and Nova Systems."
+    reasoning_type: multi_hop_traversal
+    expected_seed_entities: ["Anand Iyer", "Nova Systems"]
+    expected_paths:
+      - ["Anand Iyer", "CO_FOUNDED", "Vector Labs", "ACQUIRED", "Nova Systems"]
+    expected_evidence:
+      - chunk_id: "chunk_002_001"
+      - chunk_id: "chunk_005_001"
+
+  # ── Category 5: exploration_unsupported (Boundary Verification) ──
+  - id: s8_q15
+    category: exploration_unsupported
+    question: "Explore the organizational structure of Cyberdyne Systems."
+    reasoning_type: unsupported
+    expected_seed_entities: []
+    expected_paths: []
+    expected_evidence: []
+
+  - id: s8_q16
+    category: exploration_unsupported
+    question: "Explore the acquisition history of Initech Corporation."
+    reasoning_type: unsupported
+    expected_seed_entities: []
+    expected_paths: []
+    expected_evidence: []
+
+  - id: s8_q17
+    category: exploration_unsupported
+    question: "What are the core capabilities and database engine of Stark Industries?"
+    reasoning_type: unsupported
+    expected_seed_entities: []
+    expected_paths: []
+    expected_evidence: []
+
+  - id: s8_q18
+    category: exploration_unsupported
+    question: "Explore the supply chain connections of Weyland-Yutani Corp."
+    reasoning_type: unsupported
+    expected_seed_entities: []
+    expected_paths: []
+    expected_evidence: []
+
+  - id: s8_q19
+    category: exploration_unsupported
+    question: "Explore the leadership team of Tyrell Corporation."
+    reasoning_type: unsupported
+    expected_seed_entities: []
+    expected_paths: []
+    expected_evidence: []
+
+  - id: s8_q20
+    category: exploration_unsupported
+    question: "How does Omni Consumer Products connect to autonomous law enforcement?"
+    reasoning_type: unsupported
+    expected_seed_entities: []
+    expected_paths: []
+    expected_evidence: []
