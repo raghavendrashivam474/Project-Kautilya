@@ -1,4 +1,4 @@
-"""Execute reasoning plans against the KnowledgeGraph.
+﻿"""Execute reasoning plans against the KnowledgeGraph.
 
 Walks the graph step-by-step according to the ReasoningPlan,
 producing a ReasoningTrace with per-hop outcomes and failure codes.
@@ -85,11 +85,11 @@ class ReasoningExecutor:
 
             # --- Deterministic tie-breaking: sort by target/source ID ---
             if step.direction == Direction.OUTGOING:
-                matching.sort(key=lambda r: r.target_entity_id)
+                matching.sort(key=lambda r: (r.id, r.target_entity_id))
                 rel = matching[0]
                 next_id = rel.target_entity_id
             else:
-                matching.sort(key=lambda r: r.source_entity_id)
+                matching.sort(key=lambda r: (r.id, r.source_entity_id))
                 rel = matching[0]
                 next_id = rel.source_entity_id
 
@@ -151,3 +151,4 @@ class ReasoningExecutor:
             terminal_entity_name=terminal,
             status=ReasoningStatus.SUCCESS if all_ok else hops[-1].status,
         )
+
