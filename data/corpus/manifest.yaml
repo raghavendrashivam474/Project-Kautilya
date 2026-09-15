@@ -54,3 +54,7 @@ documents:
     title: "Rohan Kapoor"
     source: doc_012.txt
     metadata: { subject: person, primary_entity: "Rohan Kapoor" }
+  - id: doc_013
+    title: "Nova Systems Alternative Founding Record"
+    source: doc_013.txt
+    metadata: { subject: document, primary_entity: "Nova Systems" }
