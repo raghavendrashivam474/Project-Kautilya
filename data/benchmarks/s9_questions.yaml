@@ -1,0 +1,100 @@
+﻿benchmark_id: s9_resolution_benchmark
+description: "S9 Knowledge Resolution benchmark evaluating deterministic resolution of consistency, conflict, ambiguity, and insufficiency across discovered knowledge."
+version: "1.0.0"
+questions:
+  # ── Category 1: resolution_consistent ──
+  - id: s9_q01
+    category: resolution_consistent
+    question: "Who founded the company that acquired Vector Labs?"
+    expected_status: "CONSISTENT"
+    expected_subject: "Nova Systems"
+    expected_predicate: "FOUNDED"
+    expected_object: "Rohan Kapoor"
+    expected_evidence_chunks: ["chunk_001_001", "chunk_012_001"]
+
+  - id: s9_q02
+    category: resolution_consistent
+    question: "Who leads Nova AI Division?"
+    expected_status: "CONSISTENT"
+    expected_subject: "Nova AI Division"
+    expected_predicate: "LEADER"
+    expected_object: "Arjun Mehta"
+    expected_evidence_chunks: ["chunk_007_001", "chunk_008_001"]
+
+  - id: s9_q03
+    category: resolution_consistent
+    question: "What database does Nova Systems develop?"
+    expected_status: "CONSISTENT"
+    expected_subject: "Nova Systems"
+    expected_predicate: "DEVELOPED"
+    expected_object: "HelixDB"
+    expected_evidence_chunks: ["chunk_001_001", "chunk_003_001"]
+
+  - id: s9_q04
+    category: resolution_consistent
+    question: "Who co-founded Vector Labs?"
+    expected_status: "CONSISTENT"
+    expected_subject: "Vector Labs"
+    expected_predicate: "CO_FOUNDED"
+    expected_evidence_chunks: ["chunk_002_001", "chunk_006_001", "chunk_010_001"]
+
+  # ── Category 2: resolution_conflicting ──
+  - id: s9_q05
+    category: resolution_conflicting
+    question: "Who is the exclusive founder of Nova Systems according to conflicting reports?"
+    expected_status: "CONFLICTING"
+    expected_subject: "Nova Systems"
+    expected_predicate: "FOUNDED"
+    simulated_conflicts: true
+    expected_evidence_chunks: ["chunk_001_001"]
+
+  - id: s9_q06
+    category: resolution_conflicting
+    question: "Which company exclusively acquired Vector Labs in contested claims?"
+    expected_status: "CONFLICTING"
+    expected_subject: "Vector Labs"
+    expected_predicate: "ACQUIRED"
+    simulated_conflicts: true
+    expected_evidence_chunks: ["chunk_002_001", "chunk_005_001"]
+
+  # ── Category 3: resolution_ambiguous ──
+  - id: s9_q07
+    category: resolution_ambiguous
+    question: "Tell me about the founder of Nova"
+    expected_status: "AMBIGUOUS"
+    ambiguity_reason: "Multiple entities match seed prefix Nova (Nova Systems, Nova AI Division)"
+    expected_evidence_chunks: ["chunk_001_001", "chunk_008_001"]
+
+  - id: s9_q08
+    category: resolution_ambiguous
+    question: "What is the relationship between the founder and the analytics firm?"
+    expected_status: "AMBIGUOUS"
+    ambiguity_reason: "Multiple plausible founder/firm combinations exist"
+    expected_evidence_chunks: ["chunk_004_001", "chunk_012_001"]
+
+  # ── Category 4: resolution_insufficient ──
+  - id: s9_q09
+    category: resolution_insufficient
+    question: "What was the stock price of Nova Systems during the merger?"
+    expected_status: "INSUFFICIENT"
+    expected_evidence_chunks: []
+
+  - id: s9_q10
+    category: resolution_insufficient
+    question: "What hardware architecture runs HelixDB in production?"
+    expected_status: "INSUFFICIENT"
+    expected_evidence_chunks: []
+
+  # ── Category 5: resolution_unsupported ──
+  - id: s9_q11
+    category: resolution_unsupported
+    question: "What is the capital of France?"
+    expected_status: "UNSUPPORTED"
+    expected_evidence_chunks: []
+
+  - id: s9_q12
+    category: resolution_unsupported
+    question: "How do quantum computers factor large primes?"
+    expected_status: "UNSUPPORTED"
+    expected_evidence_chunks: []
+
