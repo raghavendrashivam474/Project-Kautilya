@@ -42,8 +42,7 @@ relations:
   # Mira Sharma
   - { id: rel_070, source: ent_010, relation_type: LEADS,            target: ent_002, provenance: { document_id: doc_006, chunk_id: chunk_006_001 } }
 
-  # S10 Natural Conflict - Alternative Founding
+  # S10 Natural Conflicts
   - { id: rel_101, source: ent_010, relation_type: FOUNDED,          target: ent_001, provenance: { document_id: doc_013, chunk_id: chunk_013_001 } }
-
   - { id: rel_102, source: ent_003, relation_type: HEADQUARTERED_IN, target: ent_051, provenance: { document_id: doc_014, chunk_id: chunk_014_001 } }
   - { id: rel_103, source: ent_003, relation_type: ACQUIRED,         target: ent_002, provenance: { document_id: doc_015, chunk_id: chunk_015_001 } }
