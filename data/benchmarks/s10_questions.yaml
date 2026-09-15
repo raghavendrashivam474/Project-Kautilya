@@ -1,0 +1,132 @@
+﻿benchmark_id: s10_natural_conflict_benchmark
+description: "S10 Natural Conflict Resolution benchmark stress-testing Exploration -> Resolution against naturally occurring contradictory knowledge in the corpus."
+version: "1.0.0"
+questions:
+  # ── Category 1: Natural Conflicting (4 questions) ──
+  - id: s10_q01
+    category: natural_conflicting
+    question: "Who founded Nova Systems?"
+    expected_status: "CONFLICTING"
+    expected_subject: "Nova Systems"
+    expected_predicate: "FOUNDED"
+    competing_objects: ["Rohan Kapoor", "Mira Sharma"]
+    expected_evidence_chunks: ["chunk_001_001", "chunk_012_001", "chunk_013_001"]
+
+  - id: s10_q02
+    category: natural_conflicting
+    question: "Where is Orion Analytics headquartered?"
+    expected_status: "CONFLICTING"
+    expected_subject: "Orion Analytics"
+    expected_predicate: "HEADQUARTERED_IN"
+    competing_objects: ["Hyderabad", "Pune"]
+    expected_evidence_chunks: ["chunk_004_001", "chunk_014_001"]
+
+  - id: s10_q03
+    category: natural_conflicting
+    question: "Who acquired Vector Labs?"
+    expected_status: "CONFLICTING"
+    expected_subject: "Vector Labs"
+    expected_predicate: "ACQUIRED"
+    competing_subjects: ["Nova Systems", "Orion Analytics"]
+    expected_evidence_chunks: ["chunk_005_001", "chunk_015_001"]
+
+  - id: s10_q04
+    category: natural_conflicting
+    question: "Which executive founded Nova Systems according to official and archival records?"
+    expected_status: "CONFLICTING"
+    expected_subject: "Nova Systems"
+    expected_predicate: "FOUNDED"
+    competing_objects: ["Rohan Kapoor", "Mira Sharma"]
+    expected_evidence_chunks: ["chunk_001_001", "chunk_013_001"]
+
+  # ── Category 2: Natural Consistent (4 questions) ──
+  - id: s10_q05
+    category: natural_consistent
+    question: "Where is Vector Labs headquartered?"
+    expected_status: "CONSISTENT"
+    expected_subject: "Vector Labs"
+    expected_predicate: "HEADQUARTERED_IN"
+    expected_object: "Pune"
+    expected_evidence_chunks: ["chunk_002_001"]
+
+  - id: s10_q06
+    category: natural_consistent
+    question: "Who founded Orion Analytics?"
+    expected_status: "CONSISTENT"
+    expected_subject: "Orion Analytics"
+    expected_predicate: "FOUNDED"
+    expected_object: "Arjun Mehta"
+    expected_evidence_chunks: ["chunk_007_001"]
+
+  - id: s10_q07
+    category: natural_consistent
+    question: "What database was developed by Vector Labs?"
+    expected_status: "CONSISTENT"
+    expected_subject: "Vector Labs"
+    expected_predicate: "DEVELOPED"
+    expected_object: "HelixDB"
+    expected_evidence_chunks: ["chunk_002_001", "chunk_003_001"]
+
+  - id: s10_q08
+    category: natural_consistent
+    question: "Who co-founded Vector Labs?"
+    expected_status: "CONSISTENT"
+    expected_subject: "Vector Labs"
+    expected_predicate: "CO_FOUNDED"
+    expected_evidence_chunks: ["chunk_002_001"]
+
+  # ── Category 3: Multi-valued Non-conflict (2 questions) ──
+  - id: s10_q09
+    category: multivalued_non_conflict
+    question: "What organizations does Mira Sharma lead?"
+    expected_status: "CONSISTENT"
+    expected_subject: "Mira Sharma"
+    expected_predicate: "LEADS"
+    expected_evidence_chunks: ["chunk_006_001", "chunk_008_001"]
+
+  - id: s10_q10
+    category: multivalued_non_conflict
+    question: "What technologies does Orion Analytics use?"
+    expected_status: "CONSISTENT"
+    expected_subject: "Orion Analytics"
+    expected_predicate: "USES"
+    expected_evidence_chunks: ["chunk_004_001"]
+
+  # ── Category 4: Ambiguous Boundary (2 questions) ──
+  - id: s10_q11
+    category: boundary_ambiguous
+    question: "Tell me about the founder of Nova"
+    expected_status: "AMBIGUOUS"
+    expected_evidence_chunks: ["chunk_001_001", "chunk_008_001"]
+
+  - id: s10_q12
+    category: boundary_ambiguous
+    question: "What is the relationship between the founder of Nova Systems and the analytics firm?"
+    expected_status: "AMBIGUOUS"
+    expected_evidence_chunks: ["chunk_004_001", "chunk_012_001"]
+
+  # ── Category 5: Insufficient Boundary (2 questions) ──
+  - id: s10_q13
+    category: boundary_insufficient
+    question: "What is the current stock price and valuation of Nova Systems?"
+    expected_status: "INSUFFICIENT"
+    expected_evidence_chunks: []
+
+  - id: s10_q14
+    category: boundary_insufficient
+    question: "What server cpu architecture powers the Kaveri model deployment?"
+    expected_status: "INSUFFICIENT"
+    expected_evidence_chunks: []
+
+  # ── Category 6: Unsupported Boundary (2 questions) ──
+  - id: s10_q15
+    category: boundary_unsupported
+    question: "Who is the chief operating officer of Quantum Dynamics Global?"
+    expected_status: "UNSUPPORTED"
+    expected_evidence_chunks: []
+
+  - id: s10_q16
+    category: boundary_unsupported
+    question: "How do superconducting qubits perform Shor quantum factorization?"
+    expected_status: "UNSUPPORTED"
+    expected_evidence_chunks: []
