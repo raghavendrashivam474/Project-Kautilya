@@ -1,0 +1,30 @@
+﻿# Project Kautilya — Entities
+# Controlled vocabulary. Entity types: Person, Company, Product, Technology, Organization, Location
+
+entities:
+  # Companies
+  - { id: ent_001, name: "Nova Systems",     entity_type: Company,      aliases: ["Nova"] }
+  - { id: ent_002, name: "Vector Labs",      entity_type: Company,      aliases: [] }
+  - { id: ent_003, name: "Orion Analytics",  entity_type: Company,      aliases: ["Orion"] }
+  - { id: ent_004, name: "Meridian Cloud",   entity_type: Company,      aliases: [] }
+
+  # People
+  - { id: ent_010, name: "Mira Sharma",      entity_type: Person,       aliases: [] }
+  - { id: ent_011, name: "Arjun Mehta",      entity_type: Person,       aliases: [] }
+  - { id: ent_012, name: "Anand Iyer",       entity_type: Person,       aliases: [] }
+  - { id: ent_013, name: "Rohan Kapoor",     entity_type: Person,       aliases: [] }
+
+  # Technologies
+  - { id: ent_020, name: "HelixDB",          entity_type: Technology,   aliases: [] }
+
+  # Products
+  - { id: ent_030, name: "Kaveri",           entity_type: Product,      aliases: ["Kaveri LLM"] }
+
+  # Organizations (sub-units)
+  - { id: ent_040, name: "Nova AI Division", entity_type: Organization, aliases: ["Nova Systems AI Division"] }
+
+  # Locations
+  - { id: ent_050, name: "Bengaluru",        entity_type: Location,     aliases: [] }
+  - { id: ent_051, name: "Pune",             entity_type: Location,     aliases: [] }
+  - { id: ent_052, name: "Hyderabad",        entity_type: Location,     aliases: [] }
+  - { id: ent_053, name: "Singapore",        entity_type: Location,     aliases: [] }

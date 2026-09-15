@@ -1,0 +1,4 @@
+﻿Orion Analytics is a business intelligence firm based in Hyderabad.
+It provides analytics services to financial and retail clients across Asia.
+Orion Analytics uses HelixDB as its primary data backend for customer
+insight products.

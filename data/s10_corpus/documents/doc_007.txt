@@ -1,0 +1,3 @@
+﻿Arjun Mehta is the chief executive of Orion Analytics. He founded the
+company in 2015 after previously working at several data engineering firms
+in Bengaluru. Under his leadership, Orion Analytics adopted HelixDB in 2022.
