@@ -1,0 +1,4 @@
+﻿Anand Iyer is a systems engineer and co-founder of Vector Labs. He led the
+original engineering effort behind HelixDB. Anand Iyer is based in Pune
+and continues to serve as chief technology officer of Vector Labs after
+the Nova Systems acquisition.

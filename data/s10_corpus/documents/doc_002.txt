@@ -1,0 +1,4 @@
+﻿Vector Labs is a database research company founded in 2018 by Mira Sharma
+and Anand Iyer. The company is based in Pune and specializes in high
+performance vector and graph storage systems. Vector Labs is best known
+for developing HelixDB.

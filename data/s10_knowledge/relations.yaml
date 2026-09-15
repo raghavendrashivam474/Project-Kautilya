@@ -1,0 +1,49 @@
+﻿# Project Kautilya — Relations
+# Controlled relation vocabulary:
+# FOUNDED, DEVELOPED, USES, ACQUIRED, LEADS, LOCATED_IN, PARTNERED_WITH, WORKS_FOR, HEADQUARTERED_IN, CO_FOUNDED
+
+relations:
+  # Nova Systems
+  - { id: rel_001, source: ent_013, relation_type: FOUNDED,          target: ent_001, provenance: { document_id: doc_001, chunk_id: chunk_001_001 } }
+  - { id: rel_002, source: ent_001, relation_type: HEADQUARTERED_IN, target: ent_050, provenance: { document_id: doc_001, chunk_id: chunk_001_001 } }
+  - { id: rel_003, source: ent_013, relation_type: FOUNDED,          target: ent_001, provenance: { document_id: doc_012, chunk_id: chunk_012_001 } }
+
+  # Vector Labs
+  - { id: rel_010, source: ent_010, relation_type: CO_FOUNDED,       target: ent_002, provenance: { document_id: doc_002, chunk_id: chunk_002_001 } }
+  - { id: rel_011, source: ent_012, relation_type: CO_FOUNDED,       target: ent_002, provenance: { document_id: doc_002, chunk_id: chunk_002_001 } }
+  - { id: rel_012, source: ent_002, relation_type: HEADQUARTERED_IN, target: ent_051, provenance: { document_id: doc_002, chunk_id: chunk_002_001 } }
+  - { id: rel_013, source: ent_002, relation_type: DEVELOPED,        target: ent_020, provenance: { document_id: doc_002, chunk_id: chunk_002_001 } }
+  - { id: rel_014, source: ent_002, relation_type: DEVELOPED,        target: ent_020, provenance: { document_id: doc_003, chunk_id: chunk_003_001 } }
+
+  # Orion Analytics
+  - { id: rel_020, source: ent_003, relation_type: HEADQUARTERED_IN, target: ent_052, provenance: { document_id: doc_004, chunk_id: chunk_004_001 } }
+  - { id: rel_021, source: ent_003, relation_type: USES,             target: ent_020, provenance: { document_id: doc_004, chunk_id: chunk_004_001 } }
+  - { id: rel_022, source: ent_011, relation_type: FOUNDED,          target: ent_003, provenance: { document_id: doc_007, chunk_id: chunk_007_001 } }
+  - { id: rel_023, source: ent_011, relation_type: LEADS,            target: ent_003, provenance: { document_id: doc_007, chunk_id: chunk_007_001 } }
+
+  # Acquisition
+  - { id: rel_030, source: ent_001, relation_type: ACQUIRED,         target: ent_002, provenance: { document_id: doc_005, chunk_id: chunk_005_001 } }
+  - { id: rel_031, source: ent_010, relation_type: WORKS_FOR,        target: ent_001, provenance: { document_id: doc_005, chunk_id: chunk_005_001 } }
+
+  # People
+  - { id: rel_040, source: ent_010, relation_type: LEADS,            target: ent_040, provenance: { document_id: doc_008, chunk_id: chunk_008_001 } }
+  - { id: rel_041, source: ent_040, relation_type: HEADQUARTERED_IN, target: ent_050, provenance: { document_id: doc_008, chunk_id: chunk_008_001 } }
+  - { id: rel_042, source: ent_040, relation_type: DEVELOPED,        target: ent_030, provenance: { document_id: doc_009, chunk_id: chunk_009_001 } }
+  - { id: rel_043, source: ent_030, relation_type: USES,             target: ent_020, provenance: { document_id: doc_009, chunk_id: chunk_009_001 } }
+
+  # Anand Iyer
+  - { id: rel_050, source: ent_012, relation_type: WORKS_FOR,        target: ent_002, provenance: { document_id: doc_010, chunk_id: chunk_010_001 } }
+  - { id: rel_051, source: ent_012, relation_type: LOCATED_IN,       target: ent_051, provenance: { document_id: doc_010, chunk_id: chunk_010_001 } }
+
+  # Meridian Cloud
+  - { id: rel_060, source: ent_004, relation_type: HEADQUARTERED_IN, target: ent_053, provenance: { document_id: doc_011, chunk_id: chunk_011_001 } }
+  - { id: rel_061, source: ent_004, relation_type: PARTNERED_WITH,   target: ent_002, provenance: { document_id: doc_011, chunk_id: chunk_011_001 } }
+
+  # Mira Sharma
+  - { id: rel_070, source: ent_010, relation_type: LEADS,            target: ent_002, provenance: { document_id: doc_006, chunk_id: chunk_006_001 } }
+
+  # S10 Natural Conflict - Alternative Founding
+  - { id: rel_101, source: ent_010, relation_type: FOUNDED,          target: ent_001, provenance: { document_id: doc_013, chunk_id: chunk_013_001 } }
+
+  - { id: rel_102, source: ent_003, relation_type: HEADQUARTERED_IN, target: ent_051, provenance: { document_id: doc_014, chunk_id: chunk_014_001 } }
+  - { id: rel_103, source: ent_003, relation_type: ACQUIRED,         target: ent_002, provenance: { document_id: doc_015, chunk_id: chunk_015_001 } }

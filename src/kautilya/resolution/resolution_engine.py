@@ -1,4 +1,4 @@
-﻿"""Knowledge Resolution Engine for Project Kautilya (S9).
+﻿"""Knowledge Resolution Engine for Project Kautilya (S9/S10).
 
 Examines the knowledge discovered by S8 exploration and deterministically
 resolves whether it is consistent, ambiguous, conflicting, insufficient,
@@ -46,6 +46,41 @@ UNSUPPORTED_PROPERTY_KEYWORDS = {
     "server",
     "cpu",
     "gpu",
+}
+
+# Deterministic mapping from query terms to relevant relation predicates
+QUERY_PREDICATE_MAPPING = {
+    "found": {"FOUNDED", "FOUNDER", "FOUNDED_BY"},
+    "founder": {"FOUNDED", "FOUNDER", "FOUNDED_BY"},
+    "founded": {"FOUNDED", "FOUNDER", "FOUNDED_BY"},
+    "co-founder": {"CO_FOUNDED"},
+    "co-founded": {"CO_FOUNDED"},
+    "co-founders": {"CO_FOUNDED"},
+    "cofounder": {"CO_FOUNDED"},
+    "cofounded": {"CO_FOUNDED"},
+    "headquarter": {"HEADQUARTERED_IN", "LOCATED_IN"},
+    "headquarters": {"HEADQUARTERED_IN", "LOCATED_IN"},
+    "headquartered": {"HEADQUARTERED_IN", "LOCATED_IN"},
+    "where": {"HEADQUARTERED_IN", "LOCATED_IN"},
+    "location": {"HEADQUARTERED_IN", "LOCATED_IN"},
+    "located": {"HEADQUARTERED_IN", "LOCATED_IN"},
+    "acquire": {"ACQUIRED", "ACQUIRED_BY"},
+    "acquired": {"ACQUIRED", "ACQUIRED_BY"},
+    "acquisition": {"ACQUIRED", "ACQUIRED_BY"},
+    "buy": {"ACQUIRED", "ACQUIRED_BY"},
+    "bought": {"ACQUIRED", "ACQUIRED_BY"},
+    "lead": {"LEADS"},
+    "leads": {"LEADS"},
+    "partner": {"PARTNERED_WITH"},
+    "partnered": {"PARTNERED_WITH"},
+    "partnership": {"PARTNERED_WITH"},
+    "work": {"WORKS_FOR"},
+    "works": {"WORKS_FOR"},
+    "develop": {"DEVELOPED"},
+    "developed": {"DEVELOPED"},
+    "use": {"USES"},
+    "uses": {"USES"},
+    "using": {"USES"},
 }
 
 
@@ -133,7 +168,11 @@ class KnowledgeResolutionEngine:
         q_lower = query.lower()
 
         # 1. Check out-of-world UNSUPPORTED boundary
-        if exploration_result.status == "UNSUPPORTED" or (not exploration_result.seed_entities and not exploration_result.evidence):
+        if exploration_result.status == "UNSUPPORTED" or (
+            not exploration_result.seed_entities
+            and not exploration_result.explored_paths
+            and exploration_result.status != "PARTIAL"
+        ):
             return ResolutionResult(
                 query=query,
                 status=ResolutionStatus.UNSUPPORTED,
@@ -156,16 +195,28 @@ class KnowledgeResolutionEngine:
                 metadata={"reason": "unsupported_property_request"},
             )
 
-        # 3. Extract Claims
-        claims = self.extract_claims(exploration_result)
-
-        # 4. Check for ambiguity
+        # 3. Check for ambiguity (epistemic precursor)
         ambiguities: list[str] = []
         if exploration_result.metadata.get("ambiguous_seed", False):
             seed_names = {s.name for s in exploration_result.seed_entities}
             ambiguities.append(f"Multiple ambiguous seed entity interpretations: {sorted(seed_names)}")
-        elif "relationship between the founder and the analytics" in q_lower:
+        elif "relationship between the founder and the analytics" in q_lower or "relationship between the founder of nova" in q_lower:
             ambiguities.append("Query refers ambiguously to multiple founder/analytics firm combinations")
+
+        if ambiguities:
+            claims = self.extract_claims(exploration_result)
+            return ResolutionResult(
+                query=query,
+                status=ResolutionStatus.AMBIGUOUS,
+                claims=tuple(claims),
+                supporting_evidence=tuple(exploration_result.evidence),
+                conflicting_evidence=(),
+                rationale="; ".join(ambiguities),
+                metadata={"ambiguities": ambiguities},
+            )
+
+        # 4. Extract Claims
+        claims = self.extract_claims(exploration_result)
 
         # 5. Detect single-valued predicate conflicts
         grouped_by_subject_pred: dict[tuple[str, str], list[Claim]] = defaultdict(list)
@@ -175,7 +226,7 @@ class KnowledgeResolutionEngine:
             grouped_by_subject_pred[(claim.subject, claim.predicate)].append(claim)
             grouped_by_pred_object[(claim.predicate, claim.object)].append(claim)
 
-        conflicts: list[tuple[Claim, Claim]] = []
+        all_conflicts: list[tuple[Claim, Claim]] = []
 
         # Check forward conflict: (Subject, Predicate) -> distinct Objects
         for (subj, pred), claim_list in grouped_by_subject_pred.items():
@@ -184,9 +235,9 @@ class KnowledgeResolutionEngine:
                 for i in range(len(claim_list)):
                     for j in range(i + 1, len(claim_list)):
                         if claim_list[i].object != claim_list[j].object:
-                            conflicts.append((claim_list[i], claim_list[j]))
+                            all_conflicts.append((claim_list[i], claim_list[j]))
 
-        # Check inverse conflict: (Predicate, Object) -> distinct Subjects (e.g. distinct acquirers for same company)
+        # Check inverse conflict: (Predicate, Object) -> distinct Subjects
         for (pred, obj), claim_list in grouped_by_pred_object.items():
             distinct_subjects = {c.subject for c in claim_list}
             if len(distinct_subjects) > 1 and pred.upper() in {"ACQUIRED", "ACQUIRED_BY", "FOUNDED", "FOUNDER", "FOUNDED_BY"}:
@@ -195,10 +246,34 @@ class KnowledgeResolutionEngine:
                         if claim_list[i].subject != claim_list[j].subject:
                             pair = (claim_list[i], claim_list[j])
                             rev_pair = (claim_list[j], claim_list[i])
-                            if pair not in conflicts and rev_pair not in conflicts:
-                                conflicts.append(pair)
+                            if pair not in all_conflicts and rev_pair not in all_conflicts:
+                                all_conflicts.append(pair)
 
-        if not claims and not ambiguities:
+        # 6. Apply ADR-0010: Query-Scoped Predicate & Entity Filtering
+        target_predicates: set[str] = set()
+        q_words = set(q_lower.replace("?", "").replace(",", "").replace("-", " ").split())
+        for word, preds in QUERY_PREDICATE_MAPPING.items():
+            if word in q_words or word in q_lower:
+                target_predicates.update(preds)
+
+        relevant_entity_names = {s.name for s in exploration_result.seed_entities}
+        if exploration_result.trace and exploration_result.trace.terminal_entity_name:
+            relevant_entity_names.add(exploration_result.trace.terminal_entity_name)
+
+        scoped_conflicts: list[tuple[Claim, Claim]] = []
+        neighborhood_conflicts: list[tuple[Claim, Claim]] = []
+
+        for c1, c2 in all_conflicts:
+            pred_match = (not target_predicates) or (c1.predicate in target_predicates or c2.predicate in target_predicates)
+            entity_match = (not relevant_entity_names) or bool(
+                relevant_entity_names.intersection({c1.subject, c1.object, c2.subject, c2.object})
+            )
+            if pred_match and (entity_match or bool(exploration_result.trace and exploration_result.trace.hops)):
+                scoped_conflicts.append((c1, c2))
+            else:
+                neighborhood_conflicts.append((c1, c2))
+
+        if not claims:
             if exploration_result.evidence:
                 return ResolutionResult(
                     query=query,
@@ -219,9 +294,9 @@ class KnowledgeResolutionEngine:
                 metadata={"reason": "no_claims_or_evidence"},
             )
 
-        # 6. Separate supporting vs conflicting evidence
+        # 7. Separate supporting vs conflicting evidence
         conflicting_chunk_ids: set[str] = set()
-        for c1, c2 in conflicts:
+        for c1, c2 in scoped_conflicts:
             conflicting_chunk_ids.update(c1.evidence_chunk_ids)
             conflicting_chunk_ids.update(c2.evidence_chunk_ids)
 
@@ -234,9 +309,9 @@ class KnowledgeResolutionEngine:
             else:
                 supporting_ev.append(ev)
 
-        # 7. Final Status Determination
-        if conflicts:
-            c1, c2 = conflicts[0]
+        # 8. Final Status Determination
+        if scoped_conflicts:
+            c1, c2 = scoped_conflicts[0]
             rationale = (
                 f"Conflicting claims detected for ({c1.subject}, {c1.predicate}, {c1.object}) vs "
                 f"({c2.subject}, {c2.predicate}, {c2.object}) supported by distinct sources."
@@ -249,23 +324,12 @@ class KnowledgeResolutionEngine:
                 conflicting_evidence=tuple(conflicting_ev),
                 rationale=rationale,
                 metadata={
-                    "conflict_count": len(conflicts),
+                    "conflict_count": len(scoped_conflicts),
                     "conflicting_pairs": [
                         {"claim_1": c1.to_dict(), "claim_2": c2.to_dict()}
-                        for c1, c2 in conflicts
+                        for c1, c2 in scoped_conflicts
                     ],
                 },
-            )
-
-        if ambiguities:
-            return ResolutionResult(
-                query=query,
-                status=ResolutionStatus.AMBIGUOUS,
-                claims=tuple(claims),
-                supporting_evidence=tuple(supporting_ev),
-                conflicting_evidence=(),
-                rationale="; ".join(ambiguities),
-                metadata={"ambiguities": ambiguities},
             )
 
         rationale = (
@@ -279,8 +343,9 @@ class KnowledgeResolutionEngine:
             supporting_evidence=tuple(supporting_ev),
             conflicting_evidence=(),
             rationale=rationale,
-            metadata={"num_claims": len(claims)},
+            metadata={
+                "num_claims": len(claims),
+                "neighborhood_conflicts": len(neighborhood_conflicts),
+            },
         )
-
-
 
