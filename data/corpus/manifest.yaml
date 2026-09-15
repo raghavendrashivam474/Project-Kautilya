@@ -58,3 +58,11 @@ documents:
     title: "Nova Systems Alternative Founding Record"
     source: doc_013.txt
     metadata: { subject: document, primary_entity: "Nova Systems" }
+  - id: doc_014
+    title: "Orion Analytics Registry Filing"
+    source: doc_014.txt
+    metadata: { subject: document, primary_entity: "Orion Analytics" }
+  - id: doc_015
+    title: "Orion Acquisition Report"
+    source: doc_015.txt
+    metadata: { subject: document, primary_entity: "Orion Analytics" }
