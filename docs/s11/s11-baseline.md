@@ -170,7 +170,6 @@ ExplorationResult
 
 ## 7. Current Execution Flow (Full Pipeline)
 ```text
-
                     Query
                       │
                       ▼
@@ -199,7 +198,6 @@ ExplorationResult
           │           │               │
           ▼           ▼               ▼
      RetrievalResult  RetrievalResult  ResolutionResult
-
 ```
 ---
 
