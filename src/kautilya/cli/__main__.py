@@ -1368,6 +1368,8 @@ def _cmd_evaluate(args: argparse.Namespace) -> None:
         _evaluate_s10()
     elif sprint == "s11":
         _evaluate_s11()
+    elif sprint == "s12":
+        _evaluate_s12()
     else:
         print(f"Unknown sprint: {sprint}. Use 's2', 's3', 's4', 's5', 's6', 's7', or 's8'.")
         sys.exit(1)
@@ -1676,6 +1678,202 @@ def _evaluate_s11() -> None:
         print(f"  {cat:<32}{s_acc:>10.1f}%{ad_res_acc:>11.1f}%{ao_res_acc:>9.1f}%{saved:>18d}")
 
 
+def _evaluate_s12() -> None:
+
+    bench_path = Path("data/benchmarks/s12_questions.yaml")
+    if not bench_path.exists():
+        print(f"Benchmark not found: {bench_path}")
+        sys.exit(1)
+
+    with open(bench_path, "r", encoding="utf-8") as f:
+        bench_data = yaml.safe_load(f)
+
+    questions = bench_data.get("questions", [])
+    print(f"\nLoading S12 Adaptive Escalation & Evidence Sufficiency benchmark: {len(questions)} questions")
+
+    # Engines
+    always_on_engine = _build_exploration_engine(max_hops=2, top_k=5)
+    adaptive_orchestrator = _build_adaptive_orchestrator(max_hops=2, top_k=5)
+    resolution_engine = _build_resolution_engine()
+
+    total = len(questions)
+
+    # Core Metrics Containers
+    strat_correct = 0
+    ao_correct = 0
+    s11_correct = 0
+    s12_correct = 0
+
+    ao_recalls = {1: 0, 3: 0, 5: 0}
+    s11_recalls = {1: 0, 3: 0, 5: 0}
+    s12_recalls = {1: 0, 3: 0, 5: 0}
+    eval_recall_count = 0
+
+    ao_latency_total = 0.0
+    s11_latency_total = 0.0
+    s12_latency_total = 0.0
+
+    ao_invocations_total = 0
+    s11_invocations_total = 0
+    s12_invocations_total = 0
+
+    escalations_count = 0
+    successful_escalations = 0
+    unnecessary_escalations = 0
+    false_early_stops = 0
+
+    per_category: dict[str, dict[str, Any]] = {}
+
+    for q in questions:
+        question = q["question"]
+        expected_strategy = q.get("expected_strategy", "")
+        expected_status = q.get("expected_status", "")
+        expected_chunks = set(q.get("expected_evidence_chunks", []))
+        category = q.get("category", "uncategorized")
+
+        if category not in per_category:
+            per_category[category] = {
+                "total": 0,
+                "strat_correct": 0,
+                "ao_correct": 0,
+                "s11_correct": 0,
+                "s12_correct": 0,
+                "escalated": 0,
+            }
+        per_category[category]["total"] += 1
+
+        # ── 1. Always-On Hybrid Execution ──
+        t0 = time.perf_counter()
+        ao_exp = always_on_engine.explore(question, top_k=5)
+        ao_res = resolution_engine.resolve(ao_exp)
+        t1 = time.perf_counter()
+        ao_lat = (t1 - t0) * 1000
+        ao_latency_total += ao_lat
+        ao_inv = 4
+        ao_invocations_total += ao_inv
+
+        # ── 2. S11 Adaptive Execution (Single Strategy Exploration) ──
+        t2 = time.perf_counter()
+        s11_exp, decision, s11_metrics = adaptive_orchestrator.explore(question, top_k=5)
+        s11_res = resolution_engine.resolve(s11_exp)
+        t3 = time.perf_counter()
+        s11_lat = (t3 - t2) * 1000
+        s11_latency_total += s11_lat
+        s11_inv = s11_metrics["total_invocations"]
+        s11_invocations_total += s11_inv
+
+        # ── 3. S12 Two-Phase Adaptive Escalation Execution ──
+        t4 = time.perf_counter()
+        s12_res, _s12_dec, _assessment, s12_metrics = adaptive_orchestrator.resolve_adaptive(question, top_k=5)
+        t5 = time.perf_counter()
+        s12_lat = (t5 - t4) * 1000
+        s12_latency_total += s12_lat
+        s12_inv = s12_metrics["total_invocations"]
+        s12_invocations_total += s12_inv
+
+        # Evaluate Strategy Routing
+        if decision.selected_strategy.value == expected_strategy:
+            strat_correct += 1
+            per_category[category]["strat_correct"] += 1
+
+        # Evaluate Resolution Accuracies
+        if ao_res.status.value == expected_status:
+            ao_correct += 1
+            per_category[category]["ao_correct"] += 1
+
+        if s11_res.status.value == expected_status:
+            s11_correct += 1
+            per_category[category]["s11_correct"] += 1
+
+        if s12_res.status.value == expected_status:
+            s12_correct += 1
+            per_category[category]["s12_correct"] += 1
+
+        # Escalation Metrics
+        is_escalated = s12_metrics["escalated"]
+        if is_escalated:
+            escalations_count += 1
+            per_category[category]["escalated"] += 1
+            if s12_res.status.value == expected_status and s11_res.status.value != expected_status:
+                successful_escalations += 1
+            elif s11_res.status.value == expected_status and s12_res.status.value == expected_status:
+                unnecessary_escalations += 1
+        else:
+            if s12_res.status.value != expected_status and ao_res.status.value == expected_status:
+                false_early_stops += 1
+
+        # Retrieval Recall Comparison
+        if expected_chunks:
+            eval_recall_count += 1
+            ao_ids = [e.chunk_id for e in ao_exp.evidence]
+            s11_ids = [e.chunk_id for e in s11_exp.evidence]
+            s12_ids = [e.chunk_id for e in s12_res.supporting_evidence] + [e.chunk_id for e in s12_res.conflicting_evidence]
+
+            for k in (1, 3, 5):
+                if expected_chunks & set(ao_ids[:k]):
+                    ao_recalls[k] += 1
+                if expected_chunks & set(s11_ids[:k]):
+                    s11_recalls[k] += 1
+                if expected_chunks & set(s12_ids[:k]):
+                    s12_recalls[k] += 1
+
+    # Print Report
+    strat_acc = (strat_correct / total) * 100
+    ao_acc = (ao_correct / total) * 100
+    s11_acc = (s11_correct / total) * 100
+    s12_acc = (s12_correct / total) * 100
+
+    s11_savings = ((ao_invocations_total - s11_invocations_total) / ao_invocations_total) * 100
+    s12_savings = ((ao_invocations_total - s12_invocations_total) / ao_invocations_total) * 100
+
+    esc_rate = (escalations_count / total) * 100
+    succ_esc_rate = (successful_escalations / escalations_count * 100) if escalations_count else 0.0
+    unnec_esc_rate = (unnecessary_escalations / escalations_count * 100) if escalations_count else 0.0
+    fes_rate = (false_early_stops / total) * 100
+
+    print()
+    print("Project Kautilya")
+    print("S12 Adaptive Escalation & Evidence Sufficiency Evaluation")
+    print("=" * 75)
+    print(f"\nTotal Questions                     : {total}")
+    print(f"Strategy Selection Accuracy         : {strat_acc:.1f}% ({strat_correct}/{total})")
+    print(f"Always-On Hybrid Resolution Acc     : {ao_acc:.1f}% ({ao_correct}/{total})")
+    print(f"S11 Adaptive Resolution Acc         : {s11_acc:.1f}% ({s11_correct}/{total})")
+    print(f"S12 Adaptive Escalation Resolution  : {s12_acc:.1f}% ({s12_correct}/{total})")
+    print()
+    print("Efficiency & Escalation Dynamics:")
+    print(f"  Always-On Total Invocations       : {ao_invocations_total} ({ao_latency_total / total:.2f} ms avg)")
+    print(f"  S11 Total Invocations             : {s11_invocations_total} ({s11_latency_total / total:.2f} ms avg, {s11_savings:.1f}% saved)")
+    print(f"  S12 Total Invocations             : {s12_invocations_total} ({s12_latency_total / total:.2f} ms avg, {s12_savings:.1f}% saved)")
+    print(f"  Escalation Rate                   : {esc_rate:.1f}% ({escalations_count}/{total})")
+    print(f"  Successful Escalations            : {succ_esc_rate:.1f}% ({successful_escalations}/{escalations_count})")
+    print(f"  Unnecessary Escalations           : {unnec_esc_rate:.1f}% ({unnecessary_escalations}/{escalations_count})")
+    print(f"  False Early-Stop Rate             : {fes_rate:.1f}% ({false_early_stops}/{total})")
+
+    if eval_recall_count > 0:
+        print("\nRetrieval Recall Comparison (on Ground-Truth queries):")
+        print(f"  {'Metric':<14}{'Always-On':>16}{'S11 Adaptive':>18}{'S12 Escalation':>20}")
+        print("  " + "-" * 70)
+        for k in (1, 3, 5):
+            ao_r = (ao_recalls[k] / eval_recall_count) * 100
+            s11_r = (s11_recalls[k] / eval_recall_count) * 100
+            s12_r = (s12_recalls[k] / eval_recall_count) * 100
+            print(f"  Recall@{k:<7}{ao_r:>15.1f}%{s11_r:>17.1f}%{s12_r:>19.1f}%")
+
+    print("\nPer-Category Breakdown:")
+    cat_header = f"  {'Category':<32}{'S11 Res':>10}{'S12 Res':>10}{'AO Res':>10}{'Escalated':>12}"
+    print(cat_header)
+    print("  " + "-" * (len(cat_header) - 2))
+    for cat in sorted(per_category.keys()):
+        stats = per_category[cat]
+        c_tot = stats["total"]
+        s11_res_acc = (stats["s11_correct"] / c_tot) * 100 if c_tot else 0
+        s12_res_acc = (stats["s12_correct"] / c_tot) * 100 if c_tot else 0
+        ao_res_acc = (stats["ao_correct"] / c_tot) * 100 if c_tot else 0
+        esc = stats["escalated"]
+        print(f"  {cat:<32}{s11_res_acc:>9.1f}%{s12_res_acc:>9.1f}%{ao_res_acc:>9.1f}%{esc:>7d}/{c_tot}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(prog="kautilya")
     subparsers = parser.add_subparsers(dest="group")
@@ -1704,7 +1902,7 @@ def main() -> None:
     retrieve_parser.add_argument("--trace", type=str, default=None)
 
     evaluate_parser = subparsers.add_parser("evaluate")
-    evaluate_parser.add_argument("sprint", choices=["s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11"])
+    evaluate_parser.add_argument("sprint", choices=["s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11", "s12"])
 
     args = parser.parse_args()
 

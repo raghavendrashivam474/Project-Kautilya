@@ -1,0 +1,151 @@
+﻿benchmark_id: s12_adaptive_escalation_benchmark
+description: "S12 Adaptive Escalation & Evidence Sufficiency benchmark evaluating whether two-phase conditional escalation recovers S11 resolution losses while preserving computational efficiency."
+version: "1.0.0"
+questions:
+  # ── Category 1: Structural Direct (Sufficient -> Safe Stop) (4 questions) ──
+  - id: s12_q01
+    category: structural_direct_sufficient
+    question: "Where is Vector Labs headquartered?"
+    expected_strategy: "structural"
+    expected_status: "CONSISTENT"
+    expected_evidence_chunks: ["chunk_002_001"]
+
+  - id: s12_q02
+    category: structural_direct_sufficient
+    question: "Who founded Orion Analytics?"
+    expected_strategy: "structural"
+    expected_status: "CONSISTENT"
+    expected_evidence_chunks: ["chunk_007_001"]
+
+  - id: s12_q03
+    category: structural_direct_sufficient
+    question: "What database was developed by Vector Labs?"
+    expected_strategy: "structural"
+    expected_status: "CONSISTENT"
+    expected_evidence_chunks: ["chunk_002_001", "chunk_003_001"]
+
+  - id: s12_q04
+    category: structural_direct_sufficient
+    question: "Who co-founded Vector Labs?"
+    expected_strategy: "structural"
+    expected_status: "CONSISTENT"
+    expected_evidence_chunks: ["chunk_002_001"]
+
+  # ── Category 2: Boundary / Out-of-World (Insufficient/Unsupported -> Safe Stop) (3 questions) ──
+  - id: s12_q05
+    category: out_of_world_unsupported_stop
+    question: "Who is the chief operating officer of Quantum Dynamics Global?"
+    expected_strategy: "semantic"
+    expected_status: "INSUFFICIENT"
+    expected_evidence_chunks: []
+
+  - id: s12_q06
+    category: out_of_world_unsupported_stop
+    question: "What are modern deep neural network embedding strategies and cosine retrieval mechanics?"
+    expected_strategy: "semantic"
+    expected_status: "INSUFFICIENT"
+    expected_evidence_chunks: []
+
+  - id: s12_q07
+    category: out_of_world_unsupported_stop
+    question: "How does natural language vector search compare with symbolic knowledge graphs in hybrid AI?"
+    expected_strategy: "semantic"
+    expected_status: "INSUFFICIENT"
+    expected_evidence_chunks: []
+
+  # ── Category 3: Natural Conflicts (Multi-Claim -> Surfaced) (3 questions) ──
+  - id: s12_q08
+    category: natural_conflict
+    question: "Who founded Nova Systems?"
+    expected_strategy: "structural"
+    expected_status: "CONFLICTING"
+    expected_evidence_chunks: ["chunk_001_001", "chunk_012_001", "chunk_013_001"]
+
+  - id: s12_q09
+    category: natural_conflict
+    question: "Where is Orion Analytics headquartered?"
+    expected_strategy: "structural"
+    expected_status: "CONFLICTING"
+    expected_evidence_chunks: ["chunk_004_001", "chunk_014_001"]
+
+  - id: s12_q10
+    category: natural_conflict
+    question: "What is the connection between Mira Sharma and Nova Systems?"
+    expected_strategy: "structural"
+    expected_status: "CONFLICTING"
+    expected_evidence_chunks: ["chunk_001_001", "chunk_006_001", "chunk_013_001"]
+
+  # ── Category 4: Multi-hop Reasoning - Consistent (Complete -> Safe Stop) (2 questions) ──
+  - id: s12_q11
+    category: reasoning_complete_sufficient
+    question: "Who co-founded the company that Nova Systems acquired?"
+    expected_strategy: "reasoning"
+    expected_status: "CONSISTENT"
+    expected_evidence_chunks: ["chunk_002_001", "chunk_005_001"]
+
+  - id: s12_q12
+    category: reasoning_complete_sufficient
+    question: "Which cloud provider partnered with the company that developed Kaveri?"
+    expected_strategy: "reasoning"
+    expected_status: "CONSISTENT"
+    expected_evidence_chunks: ["chunk_008_001", "chunk_010_001"]
+
+  # ── Category 5: Multi-hop Reasoning with Competing Branches (Escalate -> Conflicting) (2 questions) ──
+  - id: s12_q13
+    category: reasoning_competing_branches_escalate
+    question: "Who founded the company that acquired Vector Labs?"
+    expected_strategy: "reasoning"
+    expected_status: "CONFLICTING"
+    expected_evidence_chunks: ["chunk_001_001", "chunk_005_001", "chunk_007_001", "chunk_013_001", "chunk_015_001"]
+
+  - id: s12_q14
+    category: reasoning_competing_branches_escalate
+    question: "Who acquired the company that developed HelixDB?"
+    expected_strategy: "reasoning"
+    expected_status: "CONFLICTING"
+    expected_evidence_chunks: ["chunk_002_001", "chunk_005_001", "chunk_015_001"]
+
+  # ── Category 6: Ambiguous References (Ambiguity -> Escalate) (2 questions) ──
+  - id: s12_q15
+    category: ambiguity_escalate
+    question: "What is the relationship between the founder of Nova Systems and the analytics firm?"
+    expected_strategy: "hybrid"
+    expected_status: "AMBIGUOUS"
+    expected_evidence_chunks: ["chunk_004_001", "chunk_012_001"]
+
+  - id: s12_q16
+    category: ambiguity_escalate
+    question: "Tell me about the founder of Nova"
+    expected_strategy: "hybrid"
+    expected_status: "AMBIGUOUS"
+    expected_evidence_chunks: ["chunk_001_001", "chunk_008_001"]
+
+  # ── Category 7: Unsupported Properties (Insufficient -> Stop) (2 questions) ──
+  - id: s12_q17
+    category: unsupported_property_stop
+    question: "What is the current stock price and revenue valuation of Nova Systems?"
+    expected_strategy: "structural"
+    expected_status: "INSUFFICIENT"
+    expected_evidence_chunks: []
+
+  - id: s12_q18
+    category: unsupported_property_stop
+    question: "What is the employee salary and market cap of Orion Analytics?"
+    expected_strategy: "structural"
+    expected_status: "INSUFFICIENT"
+    expected_evidence_chunks: []
+
+  # ── Category 8: Single-to-Multi Entity Relation (2 questions) ──
+  - id: s12_q19
+    category: structural_multi_entity
+    question: "How are Arjun Mehta and Orion Analytics related?"
+    expected_strategy: "structural"
+    expected_status: "CONFLICTING"
+    expected_evidence_chunks: ["chunk_007_001"]
+
+  - id: s12_q20
+    category: structural_multi_entity
+    question: "What is the relationship between Vector Labs and HelixDB?"
+    expected_strategy: "structural"
+    expected_status: "CONFLICTING"
+    expected_evidence_chunks: ["chunk_002_001", "chunk_003_001"]
