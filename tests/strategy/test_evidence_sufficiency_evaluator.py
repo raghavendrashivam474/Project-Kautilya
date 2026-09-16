@@ -1,10 +1,17 @@
-﻿"""Unit tests for EvidenceSufficiencyEvaluator."""
+﻿"""Unit tests for EvidenceSufficiencyEvaluator with correct S1-S11 contract signatures."""
 
 from __future__ import annotations
 
 import pytest
 
-from kautilya.contracts.reasoning import HopResult, ReasoningPlan, ReasoningTrace
+from kautilya.contracts.reasoning import (
+    Direction,
+    HopResult,
+    ReasoningPlan,
+    ReasoningStatus,
+    ReasoningStep,
+    ReasoningTrace,
+)
 from kautilya.contracts.resolution import Claim, ResolutionResult, ResolutionStatus
 from kautilya.contracts.retrieval import Evidence
 from kautilya.contracts.strategy import (
@@ -30,9 +37,9 @@ def test_evaluator_stops_on_hybrid_strategy(evaluator: EvidenceSufficiencyEvalua
     resolution = ResolutionResult(
         query="What is the relation between A and B?",
         status=ResolutionStatus.INSUFFICIENT,
-        claims=[],
-        conflicts=[],
-        evidence=[],
+        claims=(),
+        supporting_evidence=(),
+        conflicting_evidence=(),
     )
     assessment = evaluator.evaluate(
         query=decision.query,
@@ -54,9 +61,9 @@ def test_evaluator_stops_on_unsupported(evaluator: EvidenceSufficiencyEvaluator)
     resolution = ResolutionResult(
         query="Who is the CEO of Acme Corp?",
         status=ResolutionStatus.UNSUPPORTED,
-        claims=[],
-        conflicts=[],
-        evidence=[],
+        claims=(),
+        supporting_evidence=(),
+        conflicting_evidence=(),
     )
     assessment = evaluator.evaluate(
         query=decision.query,
@@ -78,9 +85,9 @@ def test_evaluator_escalates_on_insufficient_status(evaluator: EvidenceSufficien
     resolution = ResolutionResult(
         query="What connects Alpha and Gamma?",
         status=ResolutionStatus.INSUFFICIENT,
-        claims=[],
-        conflicts=[],
-        evidence=[],
+        claims=(),
+        supporting_evidence=(),
+        conflicting_evidence=(),
     )
     assessment = evaluator.evaluate(
         query=decision.query,
@@ -95,21 +102,26 @@ def test_evaluator_escalates_on_insufficient_status(evaluator: EvidenceSufficien
 def test_evaluator_escalates_on_ambiguous_status(evaluator: EvidenceSufficiencyEvaluator) -> None:
     """AMBIGUOUS resolution status must trigger escalation to HYBRID for disambiguation."""
     claim1 = Claim(
-        statement="Framework A provides graph search",
-        confidence=0.8,
-        source_evidence=[Evidence(id="e1", content="text1", score=0.8, source="doc1")],
+        subject="Framework A",
+        predicate="provides",
+        object="graph search",
+        evidence_chunk_ids=("e1",),
     )
     claim2 = Claim(
-        statement="Framework B provides graph search",
-        confidence=0.8,
-        source_evidence=[Evidence(id="e2", content="text2", score=0.8, source="doc2")],
+        subject="Framework B",
+        predicate="provides",
+        object="graph search",
+        evidence_chunk_ids=("e2",),
     )
+    ev1 = Evidence(chunk_id="e1", document_id="doc1", text="text1", score=0.8)
+    ev2 = Evidence(chunk_id="e2", document_id="doc2", text="text2", score=0.8)
+    
     resolution = ResolutionResult(
         query="Which framework provides both graph and vector search?",
         status=ResolutionStatus.AMBIGUOUS,
-        claims=[claim1, claim2],
-        conflicts=[],
-        evidence=[claim1.source_evidence[0], claim2.source_evidence[0]],
+        claims=(claim1, claim2),
+        supporting_evidence=(ev1, ev2),
+        conflicting_evidence=(),
     )
     assessment = evaluator.evaluate(
         query=resolution.query,
@@ -125,23 +137,33 @@ def test_evaluator_escalates_on_incomplete_reasoning_trace(
     evaluator: EvidenceSufficiencyEvaluator,
 ) -> None:
     """Incomplete reasoning trace must trigger escalation even if resolution was partial."""
-    plan = ReasoningPlan(query="Find path from X to Z", target_relation="connects", max_hops=2)
+    step = ReasoningStep(relation_type="connects", direction=Direction.OUTGOING, hop_index=0)
+    plan = ReasoningPlan(query="Find path from X to Z", seed_entity_name="X", steps=(step,))
     hop = HopResult(
         hop_index=0,
-        source_entity="X",
-        relation="connects",
-        target_entity="Y",
-        confidence=0.9,
-        evidence_ids=["e1"],
+        source_entity_id="x1",
+        source_entity_name="X",
+        relation_type="connects",
+        direction=Direction.OUTGOING,
+        target_entity_id=None,
+        target_entity_name=None,
+        chunk_ids=(),
+        status=ReasoningStatus.TRAVERSAL_FAILURE,
     )
-    trace = ReasoningTrace(plan=plan, hops=[hop], completed=False, confidence=0.45)
+    trace = ReasoningTrace(
+        plan=plan,
+        hops=(hop,),
+        terminal_entity_name=None,
+        status=ReasoningStatus.TRAVERSAL_FAILURE,
+    )
     
+    claim = Claim(subject="X", predicate="connects", object="Y")
     resolution = ResolutionResult(
         query="Find path from X to Z",
         status=ResolutionStatus.CONSISTENT,
-        claims=[Claim(statement="X connects Y", confidence=0.9, source_evidence=[])],
-        conflicts=[],
-        evidence=[],
+        claims=(claim,),
+        supporting_evidence=(),
+        conflicting_evidence=(),
     )
     assessment = evaluator.evaluate(
         query=resolution.query,
@@ -152,32 +174,41 @@ def test_evaluator_escalates_on_incomplete_reasoning_trace(
     assert assessment.escalation_required
     assert assessment.reasoning_completed is False
     assert assessment.escalation_strategy == RetrievalStrategy.HYBRID
-    assert "reasoning trace incomplete" in assessment.reason.lower()
+    assert "unsuccessful" in assessment.reason.lower()
 
 
 def test_evaluator_stops_on_consistent_sufficient(
     evaluator: EvidenceSufficiencyEvaluator,
 ) -> None:
     """CONSISTENT resolution with evidence and complete reasoning stops safely."""
-    plan = ReasoningPlan(query="Find path from A to B", target_relation="acquired", max_hops=1)
+    step = ReasoningStep(relation_type="acquired", direction=Direction.OUTGOING, hop_index=0)
+    plan = ReasoningPlan(query="Did A acquire B?", seed_entity_name="A", steps=(step,))
     hop = HopResult(
         hop_index=0,
-        source_entity="A",
-        relation="acquired",
-        target_entity="B",
-        confidence=0.95,
-        evidence_ids=["e1"],
+        source_entity_id="a1",
+        source_entity_name="A",
+        relation_type="acquired",
+        direction=Direction.OUTGOING,
+        target_entity_id="b1",
+        target_entity_name="B",
+        chunk_ids=("e1",),
+        status=ReasoningStatus.SUCCESS,
     )
-    trace = ReasoningTrace(plan=plan, hops=[hop], completed=True, confidence=0.95)
-    ev = Evidence(id="e1", content="A acquired B", score=0.95, source="doc1")
-    claim = Claim(statement="A acquired B", confidence=0.95, source_evidence=[ev])
+    trace = ReasoningTrace(
+        plan=plan,
+        hops=(hop,),
+        terminal_entity_name="B",
+        status=ReasoningStatus.SUCCESS,
+    )
+    ev = Evidence(chunk_id="e1", document_id="doc1", text="A acquired B", score=0.95)
+    claim = Claim(subject="A", predicate="acquired", object="B", evidence_chunk_ids=("e1",))
     
     resolution = ResolutionResult(
         query="Did A acquire B?",
         status=ResolutionStatus.CONSISTENT,
-        claims=[claim],
-        conflicts=[],
-        evidence=[ev],
+        claims=(claim,),
+        supporting_evidence=(ev,),
+        conflicting_evidence=(),
     )
     assessment = evaluator.evaluate(
         query=resolution.query,

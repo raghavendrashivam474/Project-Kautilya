@@ -35,20 +35,25 @@ class EvidenceSufficiencyEvaluator:
         2. If UNSUPPORTED: STOP (query is outside knowledge world; hybrid will not help).
         3. If INSUFFICIENT: ESCALATE to HYBRID.
         4. If AMBIGUOUS: ESCALATE to HYBRID (needs structural/semantic disambiguation).
-        5. If initial_strategy is REASONING and reasoning_trace.completed is False: ESCALATE to HYBRID.
+        5. If initial_strategy is REASONING and reasoning_trace is not successful: ESCALATE to HYBRID.
         6. If CONSISTENT and evidence/claims are adequate: STOP with SUFFICIENT.
         """
         meta = dict(metadata or {})
-        evidence_count = len(resolution_result.evidence)
+        
+        # Calculate total evidence from supporting and conflicting lists
+        supporting_count = len(resolution_result.supporting_evidence)
+        conflicting_count = len(resolution_result.conflicting_evidence)
+        evidence_count = supporting_count + conflicting_count
+        
         claim_count = len(resolution_result.claims)
-        reasoning_completed = reasoning_trace.completed if reasoning_trace is not None else None
+        reasoning_completed = reasoning_trace.is_success if reasoning_trace is not None else None
 
         # Rule 1: Highest tier already reached
         if initial_strategy == RetrievalStrategy.HYBRID:
             return SufficiencyAssessment(
                 status=SufficiencyStatus.SUFFICIENT
                 if resolution_result.status == ResolutionStatus.CONSISTENT
-                else SufficiencyStatus(resolution_result.status.value),
+                else SufficiencyStatus(resolution_result.status.value.lower()),
                 escalation_required=False,
                 escalation_strategy=None,
                 reason="Already executed HYBRID strategy; maximum capability tier reached.",
@@ -98,12 +103,12 @@ class EvidenceSufficiencyEvaluator:
             )
 
         # Rule 5: Incomplete reasoning trace
-        if initial_strategy == RetrievalStrategy.REASONING and reasoning_trace is not None and not reasoning_trace.completed:
+        if initial_strategy == RetrievalStrategy.REASONING and reasoning_trace is not None and not reasoning_trace.is_success:
             return SufficiencyAssessment(
                 status=SufficiencyStatus.INSUFFICIENT,
                 escalation_required=True,
                 escalation_strategy=RetrievalStrategy.HYBRID,
-                reason="Multi-hop reasoning trace incomplete; escalating to HYBRID.",
+                reason="Multi-hop reasoning trace was unsuccessful; escalating to HYBRID.",
                 evidence_count=evidence_count,
                 claim_count=claim_count,
                 reasoning_completed=False,
