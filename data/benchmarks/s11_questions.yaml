@@ -1,0 +1,149 @@
+﻿benchmark_id: s11_adaptive_strategy_benchmark
+description: "S11 Adaptive Hybrid Intelligence benchmark comparing selective orchestration against always-on hybrid execution across capability invocation efficiency, retrieval recall, and resolution accuracy."
+version: "1.0.0"
+questions:
+  # ── Category 1: Structural Lookup (4 questions) ──
+  - id: s11_q01
+    category: structural_lookup
+    question: "Where is Vector Labs headquartered?"
+    expected_strategy: "structural"
+    expected_status: "CONSISTENT"
+    expected_evidence_chunks: ["chunk_002_001"]
+
+  - id: s11_q02
+    category: structural_lookup
+    question: "Who founded Orion Analytics?"
+    expected_strategy: "structural"
+    expected_status: "CONSISTENT"
+    expected_evidence_chunks: ["chunk_007_001"]
+
+  - id: s11_q03
+    category: structural_lookup
+    question: "What database was developed by Vector Labs?"
+    expected_strategy: "structural"
+    expected_status: "CONSISTENT"
+    expected_evidence_chunks: ["chunk_002_001", "chunk_003_001"]
+
+  - id: s11_q04
+    category: structural_lookup
+    question: "Who co-founded Vector Labs?"
+    expected_strategy: "structural"
+    expected_status: "CONSISTENT"
+    expected_evidence_chunks: ["chunk_002_001"]
+
+  # ── Category 2: Structural Multi-Entity Paths (3 questions) ──
+  - id: s11_q05
+    category: structural_multi_entity
+    question: "What is the connection between Mira Sharma and Nova Systems?"
+    expected_strategy: "structural"
+    expected_status: "CONFLICTING"
+    expected_evidence_chunks: ["chunk_001_001", "chunk_006_001", "chunk_013_001"]
+
+  - id: s11_q06
+    category: structural_multi_entity
+    question: "How are Arjun Mehta and Orion Analytics related?"
+    expected_strategy: "structural"
+    expected_status: "CONSISTENT"
+    expected_evidence_chunks: ["chunk_007_001"]
+
+  - id: s11_q07
+    category: structural_multi_entity
+    question: "What is the relationship between Vector Labs and HelixDB?"
+    expected_strategy: "structural"
+    expected_status: "CONSISTENT"
+    expected_evidence_chunks: ["chunk_002_001", "chunk_003_001"]
+
+  # ── Category 3: Compositional Reasoning (4 questions) ──
+  - id: s11_q08
+    category: compositional_reasoning
+    question: "Who founded the company that acquired Vector Labs?"
+    expected_strategy: "reasoning"
+    expected_status: "CONFLICTING"
+    expected_evidence_chunks: ["chunk_001_001", "chunk_005_001", "chunk_007_001", "chunk_013_001", "chunk_015_001"]
+
+  - id: s11_q09
+    category: compositional_reasoning
+    question: "Who acquired the company that developed HelixDB?"
+    expected_strategy: "reasoning"
+    expected_status: "CONFLICTING"
+    expected_evidence_chunks: ["chunk_002_001", "chunk_005_001", "chunk_015_001"]
+
+  - id: s11_q10
+    category: compositional_reasoning
+    question: "Who co-founded the company that Nova Systems acquired?"
+    expected_strategy: "reasoning"
+    expected_status: "CONSISTENT"
+    expected_evidence_chunks: ["chunk_002_001", "chunk_005_001"]
+
+  - id: s11_q11
+    category: compositional_reasoning
+    question: "Which cloud provider partnered with the company that developed Kaveri?"
+    expected_strategy: "reasoning"
+    expected_status: "CONSISTENT"
+    expected_evidence_chunks: ["chunk_008_001", "chunk_010_001"]
+
+  # ── Category 4: Conceptual Semantic (3 questions) ──
+  - id: s11_q12
+    category: conceptual_semantic
+    question: "What are modern deep neural network embedding strategies and cosine retrieval mechanics?"
+    expected_strategy: "semantic"
+    expected_status: "UNSUPPORTED"
+    expected_evidence_chunks: []
+
+  - id: s11_q13
+    category: conceptual_semantic
+    question: "How does natural language vector search compare with symbolic knowledge graphs in hybrid AI?"
+    expected_strategy: "semantic"
+    expected_status: "UNSUPPORTED"
+    expected_evidence_chunks: []
+
+  - id: s11_q14
+    category: conceptual_semantic
+    question: "What principles govern enterprise retrieval-augmented generation systems?"
+    expected_strategy: "semantic"
+    expected_status: "UNSUPPORTED"
+    expected_evidence_chunks: []
+
+  # ── Category 5: Natural Conflict & Ambiguity (3 questions) ──
+  - id: s11_q15
+    category: natural_conflict_and_ambiguity
+    question: "Who founded Nova Systems?"
+    expected_strategy: "structural"
+    expected_status: "CONFLICTING"
+    expected_evidence_chunks: ["chunk_001_001", "chunk_012_001", "chunk_013_001"]
+
+  - id: s11_q16
+    category: natural_conflict_and_ambiguity
+    question: "Where is Orion Analytics headquartered?"
+    expected_strategy: "structural"
+    expected_status: "CONFLICTING"
+    expected_evidence_chunks: ["chunk_004_001", "chunk_014_001"]
+
+  - id: s11_q17
+    category: natural_conflict_and_ambiguity
+    question: "What is the relationship between the founder of Nova Systems and the analytics firm?"
+    expected_strategy: "hybrid"
+    expected_status: "AMBIGUOUS"
+    expected_evidence_chunks: ["chunk_004_001", "chunk_012_001"]
+
+  # ── Category 6: Boundary Handling (3 questions) ──
+  - id: s11_q18
+    category: boundary_handling
+    question: "What is the current stock price and revenue valuation of Nova Systems?"
+    expected_strategy: "structural"
+    expected_status: "INSUFFICIENT"
+    expected_evidence_chunks: []
+
+  - id: s11_q19
+    category: boundary_handling
+    question: "Who is the chief operating officer of Quantum Dynamics Global?"
+    expected_strategy: "semantic"
+    expected_status: "UNSUPPORTED"
+    expected_evidence_chunks: []
+
+  - id: s11_q20
+    category: boundary_handling
+    question: "Tell me about the founder of Nova"
+    expected_strategy: "hybrid"
+    expected_status: "AMBIGUOUS"
+    expected_evidence_chunks: ["chunk_001_001", "chunk_008_001"]
