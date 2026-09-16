@@ -1,7 +1,7 @@
-﻿"""Contracts for S11 Adaptive Strategy Selection.
+﻿"""Contracts for S11/S12 Adaptive Strategy Selection and Evidence Sufficiency.
 
-Defines the strategy enumeration and decision containers for deterministic
-retrieval strategy selection.
+Defines the strategy enumeration, decision containers, and sufficiency assessment
+contracts for deterministic routing and bounded conditional escalation.
 """
 
 from __future__ import annotations
@@ -35,5 +35,41 @@ class StrategyDecision:
             "query": self.query,
             "selected_strategy": self.selected_strategy.value,
             "reason": self.reason,
+            "metadata": self.metadata,
+        }
+
+
+class SufficiencyStatus(str, Enum):
+    """Assessment of evidence adequacy after an initial capability execution."""
+
+    SUFFICIENT = "sufficient"
+    INSUFFICIENT = "insufficient"
+    AMBIGUOUS = "ambiguous"
+    UNSUPPORTED = "unsupported"
+
+
+@dataclass(frozen=True)
+class SufficiencyAssessment:
+    """Deterministic, inspectable assessment of whether initial evidence is safe to stop on."""
+
+    status: SufficiencyStatus
+    escalation_required: bool
+    escalation_strategy: RetrievalStrategy | None = None
+    reason: str = ""
+    evidence_count: int = 0
+    claim_count: int = 0
+    reasoning_completed: bool | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert sufficiency assessment to dictionary representation."""
+        return {
+            "status": self.status.value,
+            "escalation_required": self.escalation_required,
+            "escalation_strategy": self.escalation_strategy.value if self.escalation_strategy else None,
+            "reason": self.reason,
+            "evidence_count": self.evidence_count,
+            "claim_count": self.claim_count,
+            "reasoning_completed": self.reasoning_completed,
             "metadata": self.metadata,
         }
