@@ -16,6 +16,7 @@ from kautilya.contracts.reasoning import (
 from kautilya.contracts.relation import Provenance, Relation
 from kautilya.contracts.resolution import Claim, ResolutionResult, ResolutionStatus
 from kautilya.contracts.retrieval import Evidence, RetrievalResult
+from kautilya.contracts.strategy import RetrievalStrategy, StrategyDecision
 
 __all__ = [
     "Chunk",
@@ -36,4 +37,6 @@ __all__ = [
     "ResolutionResult",
     "ResolutionStatus",
     "RetrievalResult",
+    "RetrievalStrategy",
+    "StrategyDecision",
 ]
