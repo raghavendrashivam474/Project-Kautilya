@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 
 class RetrievalStrategy(str, Enum):
@@ -54,11 +54,11 @@ class SufficiencyAssessment:
 
     status: SufficiencyStatus
     escalation_required: bool
-    escalation_strategy: Optional[RetrievalStrategy] = None
+    escalation_strategy: RetrievalStrategy | None = None
     reason: str = ""
     evidence_count: int = 0
     claim_count: int = 0
-    reasoning_completed: Optional[bool] = None
+    reasoning_completed: bool | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
